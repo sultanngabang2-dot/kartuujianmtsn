@@ -195,24 +195,46 @@
       <!-- Panel 3: Otomatisasi & Pengacakan Siswa -->
       <div class="bg-slate-800/80 backdrop-blur rounded-2xl p-5 border border-slate-700/60 shadow-xl space-y-3">
         <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-          <i class="fa-solid fa-dice"></i> Pengacakan Ruang (Kelas 7, 8, 9)
+          <i class="fa-solid fa-file-import"></i> Input Massal (3 Kolom Saja)
         </h2>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Sesuai permintaan Anda, sistem akan mendistribusikan siswa kelas 7, 8, 9 (masing-masing 5 rombel: A, B, C, D, E) secara seimbang bersilang di tiap ruang berkapasitas 36 siswa.
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Input hanya butuh: <span class="text-emerald-400 font-bold">NISN, Nama Siswa, dan Kelas</span>. Sistem akan <strong>otomatis me-generate</strong>:
         </p>
+        <ul class="text-[11px] text-slate-400 space-y-1 list-disc list-inside">
+          <li>Username = NISN</li>
+          <li>Password = Kombinasi acak huruf, angka & simbol</li>
+          <li>Ruang Ujian & No Meja = Distribusi acak bersilang (Kls 7, 8, 9)</li>
+          <li>Nomor Peserta = Format otomatis <code class="text-amber-300 font-mono">SAT-2627-XX-YY</code></li>
+        </ul>
+
+        <!-- Kapasitas Ruang Setting -->
+        <div class="pt-1">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Kapasitas Maksimal per Ruangan</label>
+          <div class="flex items-center gap-2">
+            <input type="number" id="setting-room-capacity" value="36" min="12" max="42" step="3" class="w-24 bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+            <span class="text-xs text-slate-400">siswa / ruang (Kelipatan 3 disarankan)</span>
+          </div>
+        </div>
 
         <div class="flex flex-col gap-2 pt-2">
-          <button onclick="generateRandomizedStudentData()" class="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Contoh Siswa Acak (108 Siswa)
+          <!-- Tombol Download Template Kosong -->
+          <button onclick="downloadCleanTemplate()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-700/90 border border-emerald-500/40 text-emerald-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-file-arrow-down text-emerald-400"></i> Download Template Excel 3 Kolom
           </button>
-          
+
+          <!-- Input File Excel / CSV -->
+          <label class="cursor-pointer py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition text-center">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Excel / CSV (Auto-Generate)
+            <input type="file" id="input-excel-file" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport3Columns(event)">
+          </label>
+
+          <!-- Paste Massal Direct Textarea Button & Demo Trigger -->
           <div class="grid grid-cols-2 gap-2">
-            <label class="cursor-pointer py-2 px-2 bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 transition text-center">
-              <i class="fa-solid fa-file-excel text-emerald-400"></i> Import Excel/CSV
-              <input type="file" id="input-excel-file" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport(event)">
-            </label>
-            <button onclick="exportCurrentDataToCSV()" class="py-2 px-2 bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 transition">
-              <i class="fa-solid fa-download text-amber-400"></i> Export CSV
+            <button onclick="openPasteModal()" class="py-2 px-2 bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 transition">
+              <i class="fa-regular fa-clipboard text-cyan-400"></i> Paste Data Excel
+            </button>
+            <button onclick="generateRandomizedStudentData()" class="py-2 px-2 bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Data Contoh
             </button>
           </div>
         </div>
@@ -316,11 +338,16 @@
               <h2 class="text-base font-bold text-white flex items-center gap-2">
                 <i class="fa-solid fa-users text-emerald-400"></i> Database Peserta SAS 2026/2027
               </h2>
-              <p class="text-xs text-slate-400">Username menggunakan NISN asli. Password terdiri dari kombinasi huruf, angka, dan simbol.</p>
+              <p class="text-xs text-slate-400">Sistem otomatis menghasilkan Username, Password acak, No Peserta, serta Ruang & Meja.</p>
             </div>
-            <button onclick="openAddStudentModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow">
-              <i class="fa-solid fa-user-plus"></i> Tambah Siswa Manual
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="openPasteModal()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow">
+                <i class="fa-regular fa-paste text-cyan-400"></i> Paste dari Excel
+              </button>
+              <button onclick="openAddStudentModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-user-plus"></i> Tambah Siswa
+              </button>
+            </div>
           </div>
 
           <!-- Table Container with Horizontal Scroll -->
@@ -365,64 +392,85 @@
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Nama Lengkap Siswa</label>
-          <input type="text" id="modal-input-name" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-500" placeholder="Contoh: Muhammad Rizky">
+          <label class="block text-slate-300 font-semibold mb-1">Nama Lengkap Siswa</label>
+          <input type="text" id="modal-input-name" placeholder="misal: Ahmad Pratama" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
+
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">NISN (Username)</label>
-            <input type="text" id="modal-input-nisn" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-500" placeholder="3105001099">
+            <label class="block text-slate-300 font-semibold mb-1">NISN (Username)</label>
+            <input type="text" id="modal-input-nisn" placeholder="0091234567" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Kelas Asal (7A-9E)</label>
-            <select id="modal-input-class" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-500">
-              <optgroup label="Kelas 7">
-                <option value="7A">7A</option><option value="7B">7B</option><option value="7C">7C</option><option value="7D">7D</option><option value="7E">7E</option>
-              </optgroup>
-              <optgroup label="Kelas 8">
-                <option value="8A">8A</option><option value="8B">8B</option><option value="8C">8C</option><option value="8D">8D</option><option value="8E">8E</option>
-              </optgroup>
-              <optgroup label="Kelas 9">
-                <option value="9A">9A</option><option value="9B">9B</option><option value="9C">9C</option><option value="9D">9D</option><option value="9E">9E</option>
-              </optgroup>
+            <label class="block text-slate-300 font-semibold mb-1">Kelas Asal</label>
+            <select id="modal-input-class" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="7A">7A</option><option value="7B">7B</option><option value="7C">7C</option><option value="7D">7D</option><option value="7E">7E</option>
+              <option value="8A">8A</option><option value="8B">8B</option><option value="8C">8C</option><option value="8D">8D</option><option value="8E">8E</option>
+              <option value="9A">9A</option><option value="9B">9B</option><option value="9C">9C</option><option value="9D">9D</option><option value="9E">9E</option>
             </select>
           </div>
         </div>
+
         <div class="grid grid-cols-3 gap-2">
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Ruang</label>
-            <select id="modal-input-room" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none">
-              <option value="Ruang 01">Ruang 01</option>
-              <option value="Ruang 02">Ruang 02</option>
-              <option value="Ruang 03">Ruang 03</option>
-            </select>
+            <label class="block text-slate-300 font-semibold mb-1">Ruang</label>
+            <input type="text" id="modal-input-room" value="Ruang 01" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-2 py-2 outline-none">
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">No Meja</label>
-            <input type="number" id="modal-input-seat" value="1" min="1" max="40" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none">
+            <label class="block text-slate-300 font-semibold mb-1">No Meja</label>
+            <input type="number" id="modal-input-seat" value="1" min="1" max="42" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-2 py-2 outline-none">
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Sesi</label>
-            <select id="modal-input-sesi" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none">
-              <option value="Sesi : 1">Sesi : 1</option>
-              <option value="Sesi : 2">Sesi : 2</option>
-            </select>
+            <label class="block text-slate-300 font-semibold mb-1">Sesi</label>
+            <input type="text" id="modal-input-sesi" value="Sesi : 1" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-2 py-2 outline-none">
           </div>
         </div>
+
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Password Ujian (Auto-Generated)</label>
-          <div class="flex gap-2">
-            <input type="text" id="modal-input-password" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 font-mono font-bold" readonly>
-            <button onclick="generateModalPassword()" class="px-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200">
-              <i class="fa-solid fa-arrows-rotate"></i>
-            </button>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-slate-300 font-semibold">Password CBT</label>
+            <button type="button" onclick="generateModalPassword()" class="text-emerald-400 hover:text-emerald-300 text-[11px] underline">Acak Baru</button>
           </div>
+          <input type="text" id="modal-input-password" class="w-full bg-slate-900 border border-slate-700 text-emerald-400 font-mono font-bold rounded-lg px-3 py-2 outline-none">
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-700">
         <button onclick="closeAddStudentModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-semibold">Batal</button>
-        <button onclick="saveModalStudent()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold">Simpan Siswa</button>
+        <button onclick="saveModalStudent()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5">
+          <i class="fa-solid fa-save"></i> Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Paste Massal Data Excel (3 Kolom: NISN, Nama, Kelas) -->
+  <div id="modal-paste-student" class="fixed inset-0 z-50 bg-black/75 hidden items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-700">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-regular fa-clipboard text-emerald-400"></i> Paste Massal Data Siswa (3 Kolom)
+        </h3>
+        <button onclick="closePasteModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <p class="text-slate-300">
+          Salin (Copy) tabel dari Excel atau Google Sheets yang berisi 3 kolom: <strong>NISN</strong>, <strong>Nama Siswa</strong>, dan <strong>Kelas</strong> (contoh: 7A, 8B, 9C), lalu tempelkan (Paste) ke bawah:
+        </p>
+        <textarea id="paste-textarea" rows="8" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white font-mono text-xs focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="3105001001	Ahmad Pratama	7A
+3105001002	Nabila Putri	8A
+3105001003	Muhammad Zaki	9A"></textarea>
+        <p class="text-[11px] text-slate-400 italic">Kolom dipisahkan oleh Tab atau Koma secara otomatis.</p>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-slate-700">
+        <button onclick="closePasteModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-semibold">Batal</button>
+        <button onclick="processPastedRawData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5">
+          <i class="fa-solid fa-bolt"></i> Generate Otomatis Semua
+        </button>
       </div>
     </div>
   </div>
@@ -537,11 +585,360 @@
       return `${day} ${months[monthIdx] || ""} ${year}`;
     }
 
+    /* Helper: Perbarui Label Teks Tanggal Pengesahan */
     function updateFormattedDateText() {
       const place = document.getElementById("setting-place").value.trim() || "Ngabang";
-      const rawDate = document.getElementById("setting-date-picker").value;
-      const formatted = `${place}, ${formatIndonesianDate(rawDate)}`;
-      document.getElementById("formatted-date-label").innerText = formatted;
+      const dateVal = document.getElementById("setting-date-picker").value;
+      const label = document.getElementById("formatted-date-label");
+      if (label) {
+        label.innerText = `${place}, ${formatIndonesianDate(dateVal)}`;
+      }
+    }
+
+    /* Helper: Auto-Distribute dan Generate Data Lengkap dari Input 3 Kolom */
+    function autoDistributeAndGenerate(rawList) {
+      if (!rawList || rawList.length === 0) {
+        showToast("Tidak ada data siswa untuk diproses!");
+        return;
+      }
+
+      // Ambil kapasitas ruangan per ruang dari input
+      const roomCapacity = parseInt(document.getElementById("setting-room-capacity").value, 10) || 36;
+
+      // Bersihkan dan kelompokkan siswa berdasarkan tingkatan: 7, 8, 9
+      const pool7 = [];
+      const pool8 = [];
+      const pool9 = [];
+      const poolOthers = [];
+
+      rawList.forEach((item, index) => {
+        const nisnClean = String(item.nisn || "").trim();
+        const namaClean = String(item.nama || "").trim();
+        const kelasClean = String(item.kelas || "").trim().toUpperCase();
+
+        if (!namaClean && !nisnClean) return;
+
+        const gradeMatch = kelasClean.match(/\b(7|8|9|[VII|VIII|IX]+)/i);
+        let grade = 7;
+        if (kelasClean.startsWith("7") || (gradeMatch && gradeMatch[0] === "7") || kelasClean.startsWith("VII")) {
+          grade = 7;
+          pool7.push({ nisn: nisnClean, nama: namaClean, kelas: kelasClean, tingkat: 7 });
+        } else if (kelasClean.startsWith("8") || (gradeMatch && gradeMatch[0] === "8") || kelasClean.startsWith("VIII")) {
+          grade = 8;
+          pool8.push({ nisn: nisnClean, nama: namaClean, kelas: kelasClean, tingkat: 8 });
+        } else if (kelasClean.startsWith("9") || (gradeMatch && gradeMatch[0] === "9") || kelasClean.startsWith("IX")) {
+          grade = 9;
+          pool9.push({ nisn: nisnClean, nama: namaClean, kelas: kelasClean, tingkat: 9 });
+        } else {
+          poolOthers.push({ nisn: nisnClean, nama: namaClean, kelas: kelasClean, tingkat: 7 });
+        }
+      });
+
+      // Acak (Shuffle) masing-masing pool kelas agar kombinasi kelas A, B, C, D, E terdistribusi rata
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      shuffle(pool7);
+      shuffle(pool8);
+      shuffle(pool9);
+      shuffle(poolOthers);
+
+      const totalStudents = pool7.length + pool8.length + pool9.length + poolOthers.length;
+      if (totalStudents === 0) {
+        showToast("Format data tidak terbaca dengan benar!");
+        return;
+      }
+
+      const totalRoomsNeeded = Math.ceil(totalStudents / roomCapacity);
+      const generatedList = [];
+
+      let currentRoomIndex = 1;
+      let currentSeatIndex = 1;
+
+      // Interleaving bersilang: Meja 1 Kelas 7, Meja 2 Kelas 8, Meja 3 Kelas 9, Meja 4 Kelas 7...
+      let gradeTurn = 0; // 0 -> 7, 1 -> 8, 2 -> 9
+
+      while (pool7.length > 0 || pool8.length > 0 || pool9.length > 0 || poolOthers.length > 0) {
+        let pickedStudent = null;
+
+        // Pilih siswa sesuai giliran tingkat untuk menjaga rotasi bersilang
+        if (gradeTurn === 0) {
+          pickedStudent = pool7.shift() || pool8.shift() || pool9.shift() || poolOthers.shift();
+        } else if (gradeTurn === 1) {
+          pickedStudent = pool8.shift() || pool9.shift() || pool7.shift() || poolOthers.shift();
+        } else {
+          pickedStudent = pool9.shift() || pool7.shift() || pool8.shift() || poolOthers.shift();
+        }
+
+        // Putar giliran berikutnya
+        gradeTurn = (gradeTurn + 1) % 3;
+
+        if (!pickedStudent) break;
+
+        const roomCode = currentRoomIndex < 10 ? `0${currentRoomIndex}` : `${currentRoomIndex}`;
+        const seatCode = currentSeatIndex < 10 ? `0${currentSeatIndex}` : `${currentSeatIndex}`;
+        const roomName = `Ruang ${roomCode}`;
+        const mejaName = `Meja-${seatCode}`;
+        const noPeserta = `SAT-2627-${roomCode}-${seatCode}`;
+
+        // Auto-generate: Username dari NISN, Password acak unik kombinasi angka/huruf/simbol
+        const username = pickedStudent.nisn || `310500${Math.floor(1000 + Math.random() * 9000)}`;
+        const autoPassword = generateSecurePassword();
+
+        generatedList.push({
+          id: 'std_' + Math.random().toString(36).substr(2, 9),
+          noPeserta: noPeserta,
+          nama: pickedStudent.nama,
+          nisn: username, // Username persis NISN
+          kelas: pickedStudent.kelas,
+          tingkat: pickedStudent.tingkat,
+          ruang: roomName,
+          meja: mejaName,
+          seatNumber: currentSeatIndex,
+          sesi: "Sesi : 1",
+          password: autoPassword
+        });
+
+        // Geser ke meja berikutnya atau ruang berikutnya jika kapasitas penuh
+        currentSeatIndex++;
+        if (currentSeatIndex > roomCapacity) {
+          currentRoomIndex++;
+          currentSeatIndex = 1;
+        }
+      }
+
+      students = generatedList;
+
+      // Update dropdown list filter ruang & denah secara dinamis sesuai jumlah ruang terbentuk
+      updateRoomDropdowns();
+
+      renderCards();
+      renderTable();
+      renderSeatingChart();
+      showToast(`Berhasil men-generate ${students.length} siswa ke dalam ${currentRoomIndex} ruang ujian secara otomatis!`);
+    }
+
+    /* Update Dinamis Dropdown Filter Ruang Sesuai Jumlah Siswa */
+    function updateRoomDropdowns() {
+      const roomSet = [...new Set(students.map(s => s.ruang))].sort();
+      const filterSelect = document.getElementById("filter-room");
+      const denahSelect = document.getElementById("select-denah-room");
+
+      if (roomSet.length === 0) return;
+
+      let filterHtml = `<option value="ALL">Semua Ruang Ujian (${students.length} Siswa)</option>`;
+      let denahHtml = "";
+
+      roomSet.forEach(r => {
+        const count = students.filter(s => s.ruang === r).length;
+        filterHtml += `<option value="${r}">${r} (${count} Siswa)</option>`;
+        denahHtml += `<option value="${r}">${r}</option>`;
+      });
+
+      filterSelect.innerHTML = filterHtml;
+      denahSelect.innerHTML = denahHtml;
+    }
+
+    /* Handler Import Excel/CSV khusus 3 Kolom: NISN, Nama, Kelas */
+    function handleExcelImport3Columns(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          
+          // Baca sebagai array 2 dimensi [ [kolom1, kolom2, kolom3], ...]
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+          if (!rows || rows.length < 2) {
+            showToast("Sheet Excel kosong atau tidak memiliki baris data!");
+            return;
+          }
+
+          // Cari index kolom untuk NISN, Nama, dan Kelas di baris header pertama
+          const headerRow = rows[0].map(h => String(h || "").trim().toLowerCase());
+          let nisnIdx = headerRow.findIndex(h => h.includes("nisn") || h.includes("user"));
+          let namaIdx = headerRow.findIndex(h => h.includes("nama") || h.includes("siswa"));
+          let kelasIdx = headerRow.findIndex(h => h.includes("kelas") || h.includes("rombel") || h.includes("tingkat"));
+
+          // Fallback jika header tidak bernama standar: urutan kolom 0=NISN, 1=Nama, 2=Kelas
+          if (nisnIdx === -1) nisnIdx = 0;
+          if (namaIdx === -1) namaIdx = 1;
+          if (kelasIdx === -1) kelasIdx = 2;
+
+          const rawList = [];
+          for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (!row || row.length === 0) continue;
+
+            const nisnVal = row[nisnIdx] !== undefined ? String(row[nisnIdx]).trim() : "";
+            const namaVal = row[namaIdx] !== undefined ? String(row[namaIdx]).trim() : "";
+            const kelasVal = row[kelasIdx] !== undefined ? String(row[kelasIdx]).trim() : "";
+
+            if (namaVal || nisnVal) {
+              rawList.push({
+                nisn: nisnVal,
+                nama: namaVal,
+                kelas: kelasVal || "7A"
+              });
+            }
+          }
+
+          if (rawList.length === 0) {
+            showToast("Tidak ada baris siswa yang dapat diproses!");
+            return;
+          }
+
+          // Jalankan generator otomatisasi penuh
+          autoDistributeAndGenerate(rawList);
+
+        } catch (err) {
+          console.error(err);
+          showToast("Gagal membaca file Excel. Pastikan format file .xlsx/.xls valid!");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+      // Reset input value agar bisa upload file yg sama jika diedit
+      event.target.value = "";
+    }
+
+    /* Download Template Excel Bersih 3 Kolom Saja */
+    function downloadCleanTemplate() {
+      const templateData = [
+        ["NISN", "Nama Siswa", "Kelas"],
+        ["3105001001", "Ahmad Pratama", "7A"],
+        ["3105001002", "Bagas Setiawan", "7B"],
+        ["3105001003", "Citra Kirana", "7C"],
+        ["3105001004", "Daffa Ibnu Malik", "7D"],
+        ["3105001005", "Dewi Sartika", "7E"],
+        ["3105002001", "Fajar Ramadhan", "8A"],
+        ["3105002002", "Gilang Ramadhan", "8B"],
+        ["3105002003", "Hafiz Al-Fath", "8C"],
+        ["3105002004", "Intan Permata", "8D"],
+        ["3105002005", "Kevin Jonathan", "8E"],
+        ["3105003001", "Muhammad Zaki", "9A"],
+        ["3105003002", "Nabila Nur Aini", "9B"],
+        ["3105003003", "Putri Ayu Lestari", "9C"],
+        ["3105003004", "Rizky Firmansyah", "9D"],
+        ["3105003005", "Siti Rahmawati", "9E"]
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(templateData);
+      // Atur lebar kolom
+      ws['!cols'] = [{ wch: 16 }, { wch: 28 }, { wch: 10 }];
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Input_Siswa");
+      XLSX.writeFile(wb, "Template_Data_Siswa_3_Kolom.xlsx");
+      showToast("Template Excel 3 Kolom berhasil didownload!");
+    }
+
+    /* Modal Paste Data Logic */
+    function openPasteModal() {
+      document.getElementById("modal-paste-student").classList.remove("hidden");
+      document.getElementById("modal-paste-student").classList.add("flex");
+    }
+
+    function closePasteModal() {
+      document.getElementById("modal-paste-student").classList.add("hidden");
+      document.getElementById("modal-paste-student").classList.remove("flex");
+    }
+
+    function processPastedRawData() {
+      const text = document.getElementById("paste-textarea").value.trim();
+      if (!text) {
+        showToast("Teks data masih kosong!");
+        return;
+      }
+
+      const lines = text.split("\n");
+      const rawList = [];
+
+      lines.forEach((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return;
+
+        // Pisahkan berdasarkan tab (jika copy dari excel) atau koma atau titik koma
+        let cols = trimmed.split("\t");
+        if (cols.length < 3) cols = trimmed.split(",");
+        if (cols.length < 3) cols = trimmed.split(";");
+
+        if (cols.length >= 3) {
+          const col0 = cols[0].trim();
+          const col1 = cols[1].trim();
+          const col2 = cols[2].trim();
+
+          // Abaikan jika baris tersebut adalah header
+          if (col0.toLowerCase().includes("nisn") && col1.toLowerCase().includes("nama")) return;
+
+          rawList.push({
+            nisn: col0,
+            nama: col1,
+            kelas: col2
+          });
+        }
+      });
+
+      if (rawList.length === 0) {
+        showToast("Data tidak sesuai format 3 kolom (NISN, Nama, Kelas)!");
+        return;
+      }
+
+      closePasteModal();
+      document.getElementById("paste-textarea").value = "";
+      autoDistributeAndGenerate(rawList);
+    }
+
+    /* Algoritma Distribusi Acak Merata: Kelas 7, 8, dan 9 (Masing-masing A, B, C, D, E) */
+    function generateRandomizedStudentData() {
+      const indonesianNames = [
+        "Ahmad Pratama", "Nabila Nur Aini", "Muhammad Zaki", "Siti Rahmawati", "Rizky Firmansyah",
+        "Putri Ayu Lestari", "Dimas Anggara", "Anisa Tri Wahyuni", "Fajar Ramadhan", "Dewi Sartika",
+        "Bayu Saputra", "Tiara Amanda", "Hafiz Al-Fath", "Zahra Nurul Izzah", "Aldi Maulana",
+        "Nurul Fadilah", "Bagas Setiawan", "Citra Kirana", "Gilang Ramadhan", "Aisyah Maharani",
+        "Daffa Ibnu Malik", "Safira Azzahra", "Kevin Jonathan", "Salma Khairunnisa", "Rendi Ardiansyah",
+        "Intan Permata", "Fikri Haikal", "Mutia Cantika", "Farhan Dwi Putra", "Syifa Nuraini",
+        "Ilham Maulana", "Zalfa Naura", "Wildan Pratama", "Keysha Aurelia", "Rian Hidayat",
+        "Lutfi Hakim", "Danang Prakoso", "Dinda Amelia", "Fadel Muhammad", "Tasya Kamila"
+      ];
+
+      const classes7 = ["7A", "7B", "7C", "7D", "7E"];
+      const classes8 = ["8A", "8B", "8C", "8D", "8E"];
+      const classes9 = ["9A", "9B", "9C", "9D", "9E"];
+
+      const rawList = [];
+      let nisnCounter = 3105001001;
+
+      // Buat sample 108 siswa (36 siswa x 3 kelas 7, 8, 9 dari A-E) hanya berisi 3 kolom
+      for (let i = 0; i < 36; i++) {
+        rawList.push({
+          nisn: (nisnCounter++).toString(),
+          nama: indonesianNames[i % indonesianNames.length] + " (Kls 7)",
+          kelas: classes7[i % classes7.length]
+        });
+        rawList.push({
+          nisn: (nisnCounter++).toString(),
+          nama: indonesianNames[(i + 7) % indonesianNames.length] + " (Kls 8)",
+          kelas: classes8[i % classes8.length]
+        });
+        rawList.push({
+          nisn: (nisnCounter++).toString(),
+          nama: indonesianNames[(i + 14) % indonesianNames.length] + " (Kls 9)",
+          kelas: classes9[i % classes9.length]
+        });
+      }
+
+      // Jalankan fungsi auto generate sentral
+      autoDistributeAndGenerate(rawList);
     }
 
     /* Algoritma Distribusi Acak Merata: Kelas 7, 8, dan 9 (Masing-masing A, B, C, D, E) */
