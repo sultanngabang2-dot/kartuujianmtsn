@@ -340,7 +340,11 @@
               </h2>
               <p class="text-xs text-slate-400">Sistem otomatis menghasilkan Username, Password acak, No Peserta, serta Ruang & Meja.</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center flex-wrap gap-2">
+              <!-- Tombol Hapus Data (Massal / Per Kelas) -->
+              <button onclick="openDeleteModal()" class="px-3 py-1.5 bg-rose-900/50 hover:bg-rose-800 border border-rose-600/50 text-rose-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+                <i class="fa-solid fa-trash-can text-rose-400"></i> Hapus Data...
+              </button>
               <button onclick="openPasteModal()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow">
                 <i class="fa-regular fa-paste text-cyan-400"></i> Paste dari Excel
               </button>
@@ -475,6 +479,65 @@
     </div>
   </div>
 
+  <!-- MODAL: Hapus Data Siswa (Keseluruhan atau Per Kelas) -->
+  <div id="modal-delete-choice" class="fixed inset-0 z-50 bg-black/75 hidden items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-700">
+        <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Hapus Data Peserta Ujian
+        </h3>
+        <button onclick="closeDeleteModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <p class="text-slate-300">
+          Pilih metode penghapusan data. Sistem akan otomatis mengatur ulang nomor meja dan denah ruangan setelah penghapusan:
+        </p>
+
+        <!-- Pilihan 1: Hapus Per Kelas Tertentu -->
+        <div class="p-3.5 bg-slate-900/80 border border-slate-700 rounded-xl space-y-2">
+          <label class="block text-slate-200 font-semibold flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group text-amber-400"></i> Hapus Berdasarkan Kelas / Tingkat:
+          </label>
+          <div class="flex gap-2">
+            <select id="select-delete-target" class="flex-1 bg-slate-800 border border-slate-600 text-white text-xs rounded-lg px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-rose-500">
+              <optgroup label="Tingkat Kelas (Semua Rombel)">
+                <option value="TINGKAT_7">Semua Siswa Kelas 7 (7A - 7E)</option>
+                <option value="TINGKAT_8">Semua Siswa Kelas 8 (8A - 8E)</option>
+                <option value="TINGKAT_9">Semua Siswa Kelas 9 (9A - 9E)</option>
+              </optgroup>
+              <optgroup label="Rombel Spesifik">
+                <option value="7A">Kelas 7A</option><option value="7B">Kelas 7B</option><option value="7C">Kelas 7C</option><option value="7D">Kelas 7D</option><option value="7E">Kelas 7E</option>
+                <option value="8A">Kelas 8A</option><option value="8B">Kelas 8B</option><option value="8C">Kelas 8C</option><option value="8D">Kelas 8D</option><option value="8E">Kelas 8E</option>
+                <option value="9A">Kelas 9A</option><option value="9B">Kelas 9B</option><option value="9C">Kelas 9C</option><option value="9D">Kelas 9D</option><option value="9E">Kelas 9E</option>
+              </optgroup>
+            </select>
+            <button onclick="confirmDeleteByClass()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg text-xs flex items-center gap-1">
+              <i class="fa-solid fa-trash"></i> Hapus Kelas Ini
+            </button>
+          </div>
+        </div>
+
+        <!-- Pilihan 2: Hapus Seluruh Siswa -->
+        <div class="p-3.5 bg-rose-950/20 border border-rose-800/40 rounded-xl space-y-2">
+          <p class="text-rose-300 font-semibold flex items-center gap-1.5">
+            <i class="fa-solid fa-radiation text-rose-400"></i> Hapus Seluruh Data Siswa:
+          </p>
+          <p class="text-[11px] text-slate-400">Semua data siswa di seluruh ruang akan dikosongkan secara permanen.</p>
+          <button onclick="confirmDeleteAllStudents()" class="w-full py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-900/30">
+            <i class="fa-solid fa-trash-can"></i> Hapus Semua Siswa (Kosongkan Total)
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-slate-700">
+        <button onclick="closeDeleteModal()" class="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-semibold">Tutup</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Box -->
   <div id="toast-box" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 bg-slate-900 text-white px-4 py-3 rounded-xl border border-emerald-500/50 shadow-2xl flex items-center gap-3">
     <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
@@ -524,30 +587,146 @@
       </svg>
     `)}`;
 
-    // Logo Kemenag RI (SVG Standar Resmi)
+    // Logo Resmi Kemenag RI (Segi Lima Hijau, Bintang Emas, Padi-Kapas, Al-Qur'an & Pita IKHLAS BERAMAL)
     const logoKemenagSvg = `data:image/svg+xml;utf8,${encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <polygon points="50,4 92,26 92,74 50,96 8,74 8,26" fill="#047857" stroke="#fbbf24" stroke-width="3"/>
-        <polygon points="50,11 85,29 85,71 50,89 15,71 15,29" fill="#065f46"/>
-        <circle cx="50" cy="50" r="28" fill="#10b981" stroke="#fef08a" stroke-width="2"/>
-        <!-- Simbol Kitab & Pena -->
-        <path d="M 34 58 Q 50 50, 66 58 L 66 40 Q 50 32, 34 40 Z" fill="#ffffff"/>
-        <path d="M 50 32 L 50 54" stroke="#047857" stroke-width="2"/>
-        <circle cx="50" cy="27" r="4" fill="#fbbf24"/>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" width="200" height="220">
+        <!-- Bingkai Segilima Emas Kuning Luar -->
+        <polygon points="100,5 195,78 160,210 40,210 5,78" fill="#F4CA16" stroke="#000000" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- Segilima Hijau Tua Dalam -->
+        <polygon points="100,16 185,82 153,198 47,198 15,82" fill="#006622" stroke="#004D1A" stroke-width="1.5"/>
+        
+        <!-- Bintang Emas Bersegi Lima di Atas -->
+        <polygon points="100,32 105,48 122,48 108,58 113,74 100,64 87,74 92,58 78,48 95,48" fill="#F4CA16"/>
+
+        <!-- Tangkai Kapas (Kiri) -->
+        <g fill="#FFFFFF" stroke="#333333" stroke-width="0.8">
+          <circle cx="80" cy="55" r="4.5"/>
+          <circle cx="72" cy="62" r="4.5"/>
+          <circle cx="68" cy="72" r="4.5"/>
+          <circle cx="58" cy="72" r="5"/>
+          <circle cx="52" cy="84" r="5"/>
+          <circle cx="62" cy="85" r="5"/>
+          <circle cx="56" cy="98" r="5.5"/>
+          <circle cx="46" cy="100" r="5.5"/>
+          <circle cx="43" cy="115" r="5.5"/>
+          <circle cx="53" cy="116" r="5.5"/>
+          <circle cx="44" cy="132" r="5.5"/>
+          <circle cx="54" cy="133" r="5.5"/>
+          <circle cx="48" cy="150" r="5"/>
+          <circle cx="58" cy="152" r="5"/>
+        </g>
+        <path d="M 68 170 Q 42 125 78 54" fill="none" stroke="#689F38" stroke-width="3" stroke-linecap="round"/>
+
+        <!-- Bulir Padi Emas (Kanan) -->
+        <path d="M 132 170 Q 158 120 115 54" fill="none" stroke="#E69A0B" stroke-width="3" stroke-linecap="round"/>
+        <g fill="#F5B041" stroke="#935116" stroke-width="0.7">
+          <ellipse cx="118" cy="56" rx="4.5" ry="3" transform="rotate(-30 118 56)"/>
+          <ellipse cx="127" cy="63" rx="5" ry="3.2" transform="rotate(-20 127 63)"/>
+          <ellipse cx="134" cy="73" rx="5.5" ry="3.5" transform="rotate(-10 134 73)"/>
+          <ellipse cx="140" cy="84" rx="6" ry="3.5" transform="rotate(5 140 84)"/>
+          <ellipse cx="144" cy="96" rx="6" ry="3.5" transform="rotate(20 144 96)"/>
+          <ellipse cx="145" cy="109" rx="6" ry="3.5" transform="rotate(35 145 109)"/>
+          <ellipse cx="143" cy="122" rx="6" ry="3.5" transform="rotate(50 143 122)"/>
+          <ellipse cx="139" cy="134" rx="6" ry="3.5" transform="rotate(65 139 134)"/>
+          <ellipse cx="131" cy="146" rx="5.5" ry="3.5" transform="rotate(75 131 146)"/>
+          <ellipse cx="122" cy="155" rx="5" ry="3.2" transform="rotate(85 122 155)"/>
+        </g>
+
+        <!-- Meja Al-Qur'an (Rekan Silang Putih Bergaris Hitam) -->
+        <g stroke="#000000" stroke-width="1.8">
+          <polygon points="76,145 124,145 142,168 126,172 100,154 74,172 58,168" fill="#FFFFFF"/>
+          <line x1="72" y1="168" x2="128" y2="148" stroke="#000000" stroke-width="4"/>
+          <line x1="128" y1="168" x2="72" y2="148" stroke="#000000" stroke-width="4"/>
+        </g>
+
+        <!-- Kitab Suci Al-Qur'an Terbuka Berwarna Kuning Emas -->
+        <g stroke="#78350F" stroke-width="1.2">
+          <!-- Halaman Kiri -->
+          <path d="M 100,138 L 74,124 L 80,95 L 100,102 Z" fill="#FACC15"/>
+          <path d="M 75,124 C 80,127 94,136 100,138 L 100,102 C 94,99 82,92 80,95 Z" fill="#F59E0B"/>
+          <!-- Halaman Kanan -->
+          <path d="M 100,138 L 126,124 L 120,95 L 100,102 Z" fill="#FACC15"/>
+          <path d="M 125,124 C 120,127 106,136 100,138 L 100,102 C 106,99 118,92 120,95 Z" fill="#EAB308"/>
+          <!-- Garis-garis Lembaran Buku / Ayat -->
+          <line x1="84" y1="104" x2="96" y2="108" stroke="#854D0E" stroke-width="1"/>
+          <line x1="83" y1="112" x2="96" y2="116" stroke="#854D0E" stroke-width="1"/>
+          <line x1="82" y1="120" x2="96" y2="124" stroke="#854D0E" stroke-width="1"/>
+          <line x1="104" y1="108" x2="116" y2="104" stroke="#854D0E" stroke-width="1"/>
+          <line x1="104" y1="116" x2="117" y2="112" stroke="#854D0E" stroke-width="1"/>
+          <line x1="104" y1="124" x2="118" y2="120" stroke="#854D0E" stroke-width="1"/>
+        </g>
+
+        <!-- Pita Putih Lengkung Melintang "IKHLAS BERAMAL" -->
+        <path d="M 32,176 Q 100,206 168,176 L 158,162 Q 100,188 42,162 Z" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        <path d="M 32,176 L 42,162 L 35,155 L 22,170 Z" fill="#E2E8F0" stroke="#000000" stroke-width="1.2"/>
+        <path d="M 168,176 L 158,162 L 165,155 L 178,170 Z" fill="#E2E8F0" stroke="#000000" stroke-width="1.2"/>
+        <text x="100" y="184" text-anchor="middle" font-family="'Arial Black', 'Impact', sans-serif" font-size="11.5" font-weight="900" fill="#000000" letter-spacing="1">IKHLAS BERAMAL</text>
       </svg>
     `)}`;
 
-    // Logo MTsN Landak (Bintang Sudut Delapan Islami)
+    // Logo Resmi MTsN Landak (Bintang 8 Sudut Berlapis Hijau Muda & Tua, Kubah Hijau Emas, Siswa, Buku & Berlian)
     const logoMtsnSvg = `data:image/svg+xml;utf8,${encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <!-- Bintang Rub el Hizb -->
-        <rect x="18" y="18" width="64" height="64" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="2" transform="rotate(0 50 50)"/>
-        <rect x="18" y="18" width="64" height="64" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="2" transform="rotate(45 50 50)"/>
-        <circle cx="50" cy="50" r="26" fill="#ffffff"/>
-        <!-- Simbol Obor & Buku Terbuka -->
-        <path d="M 32 55 Q 50 48, 68 55 L 68 62 Q 50 55, 32 62 Z" fill="#0284c7"/>
-        <path d="M 50 34 C 45 42, 55 42, 50 50" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <text x="50" y="73" text-anchor="middle" font-size="7" font-weight="bold" fill="#0369a1" font-family="sans-serif">MTsN LANDAK</text>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+        <!-- Bintang 8 Sudut Hijau Muda Terluar (Rub el Hizb) -->
+        <g fill="#76C043" stroke="#558B2F" stroke-width="1">
+          <rect x="25" y="25" width="150" height="150" rx="4" transform="rotate(0 100 100)"/>
+          <rect x="25" y="25" width="150" height="150" rx="4" transform="rotate(45 100 100)"/>
+        </g>
+        <!-- Bintang 8 Lapisan Putih -->
+        <g fill="#FFFFFF">
+          <rect x="31" y="31" width="138" height="138" rx="3" transform="rotate(0 100 100)"/>
+          <rect x="31" y="31" width="138" height="138" rx="3" transform="rotate(45 100 100)"/>
+        </g>
+        <!-- Bintang 8 Lapisan Hijau Toska / Dark Emerald -->
+        <g fill="#0A7A64">
+          <rect x="36" y="36" width="128" height="128" rx="2" transform="rotate(0 100 100)"/>
+          <rect x="36" y="36" width="128" height="128" rx="2" transform="rotate(45 100 100)"/>
+        </g>
+        <!-- Area Tengah Putih Bersih -->
+        <g fill="#FFFFFF">
+          <rect x="44" y="44" width="112" height="112" rx="2" transform="rotate(0 100 100)"/>
+          <rect x="44" y="44" width="112" height="112" rx="2" transform="rotate(45 100 100)"/>
+        </g>
+
+        <!-- Kubah Masjid & Menara Bulan Bintang -->
+        <path d="M 100,34 L 100,43" stroke="#0A7A64" stroke-width="2"/>
+        <circle cx="100" cy="38" r="3" fill="#0A7A64"/>
+        <!-- Kubah Lengkung Hijau -->
+        <path d="M 81,69 C 81,51 100,43 100,43 C 100,43 119,51 119,69 C 111,66 89,66 81,69 Z" fill="#0A7A64"/>
+        <path d="M 78,74 Q 100,67 122,74" fill="none" stroke="#F5A623" stroke-width="2.5"/>
+
+        <!-- Dua Figur Siswa Meraih Prestasi (Magenta & Oranye) -->
+        <!-- Figur Kiri (Magenta) -->
+        <circle cx="89" cy="85" r="7.5" fill="#D81B60"/>
+        <path d="M 88,88 C 76,80 73,86 73,86 C 82,97 86,108 92,112 C 90,104 88,96 88,88 Z" fill="#D81B60"/>
+
+        <!-- Figur Kanan (Oranye Emas) Menjangkau ke Atas -->
+        <circle cx="109" cy="81" r="7.5" fill="#F5A623"/>
+        <path d="M 108,84 C 117,74 133,73 133,73 C 122,87 114,103 104,112 C 108,102 108,93 108,84 Z" fill="#F5A623"/>
+
+        <!-- Buku Terbuka Warna-Warni (Biru, Oranye, Pink) -->
+        <!-- Lembaran Kiri -->
+        <path d="M 100,126 L 50,123 C 58,105 64,88 64,88 L 74,106 C 74,106 88,118 100,126 Z" fill="#0277BD"/>
+        <path d="M 100,125 L 61,118 L 70,98 L 100,120 Z" fill="#FFA000"/>
+        <path d="M 100,123 L 69,112 L 78,88 L 100,116 Z" fill="#E91E63"/>
+
+        <!-- Lembaran Kanan -->
+        <path d="M 100,126 L 150,123 C 142,105 136,88 136,88 L 126,106 C 126,106 112,118 100,126 Z" fill="#0277BD"/>
+        <path d="M 100,125 L 139,118 L 130,98 L 100,120 Z" fill="#FFA000"/>
+        <path d="M 100,123 L 131,112 L 122,88 L 100,116 Z" fill="#E91E63"/>
+
+        <!-- Kilauan Berlian (Diamond) di Tengah Lembaran Buku -->
+        <polygon points="100,112 110,120 100,131 90,120" fill="#FFFDE7" stroke="#8D6E63" stroke-width="1.2"/>
+        <line x1="90" y1="120" x2="110" y2="120" stroke="#8D6E63" stroke-width="0.8"/>
+        <line x1="95" y1="116" x2="105" y2="116" stroke="#8D6E63" stroke-width="0.8"/>
+        <line x1="95" y1="120" x2="100" y2="131" stroke="#8D6E63" stroke-width="0.8"/>
+        <line x1="105" y1="120" x2="100" y2="131" stroke="#8D6E63" stroke-width="0.8"/>
+
+        <!-- Garis Garis Pancaran Cahaya Berlian -->
+        <path d="M 85,116 L 80,114 M 87,122 L 82,123 M 115,116 L 120,114 M 113,122 L 118,123" stroke="#F5A623" stroke-width="1.2" stroke-linecap="round"/>
+
+        <!-- Teks Nama Lembaga: "MTS N LANDAK" -->
+        <text x="100" y="145" text-anchor="middle" font-family="'Times New Roman', 'Georgia', serif" font-size="14.5" font-weight="900" fill="#000000" letter-spacing="1">MTS N LANDAK</text>
       </svg>
     `)}`;
 
@@ -1448,6 +1627,76 @@
         document.getElementById("btn-tab-data").className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white flex items-center gap-2";
         renderTable();
       }
+    }
+
+    /* Modal Hapus Data Siswa Logic */
+    function openDeleteModal() {
+      document.getElementById("modal-delete-choice").classList.remove("hidden");
+      document.getElementById("modal-delete-choice").classList.add("flex");
+    }
+
+    function closeDeleteModal() {
+      document.getElementById("modal-delete-choice").classList.add("hidden");
+      document.getElementById("modal-delete-choice").classList.remove("flex");
+    }
+
+    /* Eksekusi Hapus Seluruh Siswa */
+    function confirmDeleteAllStudents() {
+      if (students.length === 0) {
+        showToast("Database sudah kosong!");
+        closeDeleteModal();
+        return;
+      }
+      const count = students.length;
+      students = [];
+      updateRoomDropdowns();
+      renderCards();
+      renderTable();
+      renderSeatingChart();
+      closeDeleteModal();
+      showToast(`Semua data siswa (${count} orang) berhasil dihapus.`);
+    }
+
+    /* Eksekusi Hapus Berdasarkan Kelas / Tingkat Tertentu */
+    function confirmDeleteByClass() {
+      if (students.length === 0) {
+        showToast("Database sudah dalam keadaan kosong!");
+        closeDeleteModal();
+        return;
+      }
+
+      const target = document.getElementById("select-delete-target").value;
+      const initialCount = students.length;
+
+      if (target.startsWith("TINGKAT_")) {
+        const gradeLevel = parseInt(target.replace("TINGKAT_", ""), 10);
+        students = students.filter(s => {
+          const kls = String(s.kelas || "").trim().toUpperCase();
+          const matchGrade = kls.startsWith(String(gradeLevel)) || s.tingkat === gradeLevel;
+          return !matchGrade;
+        });
+      } else {
+        // Rombel spesifik, misal: 7A, 8B
+        students = students.filter(s => String(s.kelas || "").trim().toUpperCase() !== target.toUpperCase());
+      }
+
+      const deletedCount = initialCount - students.length;
+
+      if (deletedCount === 0) {
+        showToast(`Tidak ditemukan siswa untuk kategori kelas: ${target}`);
+      } else {
+        // Susun ulang ruang dan nomor meja agar tetap terisi padat bersilang tanpa celah kosong
+        const rawListRemaining = students.map(s => ({
+          nisn: s.nisn,
+          nama: s.nama,
+          kelas: s.kelas
+        }));
+        
+        autoDistributeAndGenerate(rawListRemaining);
+        showToast(`Berhasil menghapus ${deletedCount} siswa. Meja & ruang telah ditata ulang!`);
+      }
+
+      closeDeleteModal();
     }
 
     /* Print Triggers */
