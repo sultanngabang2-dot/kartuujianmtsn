@@ -32,7 +32,7 @@
       break-inside: avoid;
     }
 
-    /* Print optimization: Presisi 10 Kartu per Lembar A4 (2 Kolom x 5 Baris) */
+    /* Print optimization: Mode Cetak Kartu & Mode Cetak Denah Bersih */
     @media print {
       body * {
         visibility: hidden;
@@ -40,10 +40,13 @@
       #print-modal, #app-navigation, #sidebar-controls, .no-print {
         display: none !important;
       }
-      #printable-area, #printable-area * {
+
+      /* Mode default: Cetak Kartu */
+      body.printing-cards #printable-area, 
+      body.printing-cards #printable-area * {
         visibility: visible;
       }
-      #printable-area {
+      body.printing-cards #printable-area {
         position: absolute;
         left: 0;
         top: 0;
@@ -56,13 +59,31 @@
         justify-content: center !important;
         gap: 2.2mm 5mm !important;
       }
-      .id-card {
+      body.printing-cards .id-card {
         width: 85.6mm !important;
         height: 52.8mm !important;
         box-shadow: none !important;
         border: 1px solid #475569 !important;
         margin: 0 !important;
       }
+
+      /* Mode Cetak Denah Tempat Duduk Khusus */
+      body.printing-denah #printable-denah-sheet,
+      body.printing-denah #printable-denah-sheet * {
+        visibility: visible;
+      }
+      body.printing-denah #printable-denah-sheet {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 10mm;
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+
       .page-break {
         page-break-after: always;
         break-after: page;
@@ -226,11 +247,15 @@
 
         <!-- Kapasitas Ruang Setting -->
         <div class="pt-1">
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Kapasitas Maksimal per Ruangan</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Kapasitas Peserta per Ruangan</label>
           <div class="flex items-center gap-2">
-            <input type="number" id="setting-room-capacity" value="36" min="12" max="42" step="3" class="w-24 bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-            <span class="text-xs text-slate-400">siswa / ruang (Kelipatan 3 disarankan)</span>
+            <select id="setting-room-capacity" onchange="reorganizeExistingStudents()" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+              <option value="36" selected>36 Siswa / Ruang (18 Meja Ganda)</option>
+              <option value="38">38 Siswa / Ruang (19 Meja Ganda)</option>
+              <option value="40">40 Siswa / Ruang (20 Meja Ganda)</option>
+            </select>
           </div>
+          <p class="text-[10.5px] text-slate-400 mt-1">Mengatur jumlah siswa per ruang dan jumlah meja duduk otomatis.</p>
         </div>
 
         <div class="flex flex-col gap-2 pt-2">
@@ -305,29 +330,47 @@
           <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700 pb-3">
             <div>
               <h2 class="text-base font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-chalkboard-user text-amber-400"></i> Denah Tempat Duduk Bersilang (Cross-Seating)
+                <i class="fa-solid fa-chalkboard-user text-amber-400"></i> Denah Tempat Duduk Bersilang (1 Meja 2 Siswa)
               </h2>
-              <p class="text-xs text-slate-400">Komposisi acak terdistribusi merata: Siswa Kelas 7, 8, dan 9 tidak duduk bersebelahan.</p>
+              <p class="text-xs text-slate-400">Pola silang merata: 1 Meja diisi 2 siswa tingkat kelas berbeda.</p>
             </div>
 
-            <div class="flex items-center gap-2">
-              <label class="text-xs text-slate-300 font-semibold">Pilih Ruang:</label>
-              <select id="select-denah-room" onchange="renderSeatingChart()" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-lg px-3 py-1.5">
-                <option value="Ruang 01">Ruang 01</option>
-                <option value="Ruang 02">Ruang 02</option>
-                <option value="Ruang 03">Ruang 03</option>
-              </select>
-              <button onclick="printSeatingChartOnly()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-lg">
-                <i class="fa-solid fa-print"></i> Cetak Denah
+            <div class="flex items-center flex-wrap gap-2">
+              <div class="flex items-center gap-1.5">
+                <label class="text-xs text-slate-300 font-semibold">Pilih Ruang:</label>
+                <select id="select-denah-room" onchange="renderSeatingChart()" class="bg-slate-900 border border-slate-700 text-white text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="Ruang 01">Ruang 01</option>
+                  <option value="Ruang 02">Ruang 02</option>
+                  <option value="Ruang 03">Ruang 03</option>
+                </select>
+              </div>
+
+              <!-- Pilihan Jumlah Meja per Baris (5 atau 6 Meja) -->
+              <div class="flex items-center gap-1.5">
+                <label class="text-xs text-slate-300 font-semibold">Meja/Baris:</label>
+                <select id="select-desks-per-row" onchange="renderSeatingChart()" class="bg-slate-900 border border-slate-700 text-amber-400 font-bold text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="5">5 Meja / Baris</option>
+                  <option value="6" selected>6 Meja / Baris</option>
+                </select>
+              </div>
+
+              <button onclick="printSeatingChartOnly()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-print"></i> Cetak Denah (Print)
               </button>
             </div>
           </div>
 
           <!-- Indikator Legend Tingkat Kelas -->
-          <div class="flex flex-wrap items-center gap-4 text-xs font-semibold">
-            <span class="flex items-center gap-1.5 text-blue-400"><span class="w-3.5 h-3.5 rounded bg-blue-600 inline-block border border-blue-400"></span> Kelas 7 (A-E)</span>
-            <span class="flex items-center gap-1.5 text-emerald-400"><span class="w-3.5 h-3.5 rounded bg-emerald-600 inline-block border border-emerald-400"></span> Kelas 8 (A-E)</span>
-            <span class="flex items-center gap-1.5 text-amber-400"><span class="w-3.5 h-3.5 rounded bg-amber-600 inline-block border border-amber-400"></span> Kelas 9 (A-E)</span>
+          <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-semibold bg-slate-900/60 p-2.5 rounded-xl border border-slate-700">
+            <div class="flex flex-wrap items-center gap-4">
+              <span class="flex items-center gap-1.5 text-blue-400"><span class="w-3.5 h-3.5 rounded bg-blue-600 inline-block border border-blue-400"></span> Siswa Kelas 7</span>
+              <span class="flex items-center gap-1.5 text-emerald-400"><span class="w-3.5 h-3.5 rounded bg-emerald-600 inline-block border border-emerald-400"></span> Siswa Kelas 8</span>
+              <span class="flex items-center gap-1.5 text-amber-400"><span class="w-3.5 h-3.5 rounded bg-amber-600 inline-block border border-amber-400"></span> Siswa Kelas 9</span>
+              <span class="flex items-center gap-1.5 text-slate-400"><span class="w-3.5 h-3.5 rounded bg-slate-700 inline-block border border-slate-500"></span> Kursi Kosong</span>
+            </div>
+            <div class="text-[11px] text-slate-400 italic">
+              <i class="fa-solid fa-circle-info text-cyan-400"></i> 1 Meja Panjang = 2 Kursi (Kiri & Kanan)
+            </div>
           </div>
 
           <!-- Meja Pengawas & Papan Tulis -->
@@ -335,12 +378,12 @@
             [ PAPAN TULIS & MEJA PENGAWAS RUANG ]
           </div>
 
-          <!-- Grid Meja 6 Baris x 6 Kolom = 36 Meja -->
-          <div id="seating-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2">
+          <!-- Grid Meja Ganda (2 Siswa per Meja) -->
+          <div id="seating-grid" class="grid gap-3 pt-2">
             <!-- Slot Meja diisi JavaScript -->
           </div>
 
-          <div class="w-full flex justify-between items-center text-slate-400 text-xs pt-2">
+          <div class="w-full flex justify-between items-center text-slate-400 text-xs pt-3 border-t border-slate-700">
             <span><i class="fa-solid fa-door-open text-emerald-400"></i> Pintu Masuk Depan</span>
             <span>Jendela Ruangan <i class="fa-solid fa-border-all text-slate-400"></i></span>
           </div>
@@ -559,6 +602,11 @@
   <div id="toast-box" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 bg-slate-900 text-white px-4 py-3 rounded-xl border border-emerald-500/50 shadow-2xl flex items-center gap-3">
     <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
     <span id="toast-message" class="text-xs font-medium">Pemberitahuan berhasil!</span>
+  </div>
+
+  <!-- CONTAINER KHUSUS CETAK DENAH DUDUK (TERSEMBUNYI SAAT NORMAL, AKTIF SAAT CETAK DENAH) -->
+  <div id="printable-denah-sheet" class="hidden">
+    <!-- Diisi otomatis oleh fungsi renderPrintableDenahSheet() -->
   </div>
 
   <!-- JAVASCRIPT LOGIC & RENDERING ENGINE -->
@@ -881,10 +929,15 @@
         const roomCode = currentRoomIndex < 10 ? `0${currentRoomIndex}` : `${currentRoomIndex}`;
         const seatCode = currentSeatIndex < 10 ? `0${currentSeatIndex}` : `${currentSeatIndex}`;
         const roomName = `Ruang ${roomCode}`;
-        const mejaName = `Meja-${seatCode}`;
+
+        // Kalkulasi Nomor Meja (1 Meja menampung 2 siswa: Kursi 1 & 2 = Meja 1, Kursi 3 & 4 = Meja 2, dst)
+        const deskNumber = Math.ceil(currentSeatIndex / 2);
+        const deskSide = (currentSeatIndex % 2 === 1) ? "Kiri" : "Kanan";
+        const deskCode = deskNumber < 10 ? `0${deskNumber}` : `${deskNumber}`;
+        const mejaName = `Meja-${deskCode} (${deskSide})`;
         const noPeserta = `SAT-2627-${roomCode}-${seatCode}`;
 
-        // Auto-generate: Username dari NISN, Password acak unik kombinasi angka/huruf/simbol
+        // Auto-generate: Username dari NISN, Password acak unik kombinasi angka/huruf
         const username = pickedStudent.nisn || `310500${Math.floor(1000 + Math.random() * 9000)}`;
         const autoPassword = generateSecurePassword();
 
@@ -898,11 +951,13 @@
           ruang: roomName,
           meja: mejaName,
           seatNumber: currentSeatIndex,
+          deskNumber: deskNumber,
+          deskSide: deskSide,
           sesi: "Sesi : 1",
           password: autoPassword
         });
 
-        // Geser ke meja berikutnya atau ruang berikutnya jika kapasitas penuh
+        // Geser ke kursi berikutnya atau ruang berikutnya jika kapasitas penuh
         currentSeatIndex++;
         if (currentSeatIndex > roomCapacity) {
           currentRoomIndex++;
@@ -919,6 +974,17 @@
       renderTable();
       renderSeatingChart();
       showToast(`Berhasil men-generate ${students.length} siswa ke dalam ${currentRoomIndex} ruang ujian secara otomatis!`);
+    }
+
+    /* Helper: Tata Ulang Siswa yang Ada Saat Kapasitas Ruang Diubah */
+    function reorganizeExistingStudents() {
+      if (students.length === 0) return;
+      const rawList = students.map(s => ({
+        nisn: s.nisn,
+        nama: s.nama,
+        kelas: s.kelas
+      }));
+      autoDistributeAndGenerate(rawList);
     }
 
     /* Update Dinamis Dropdown Filter Ruang Sesuai Jumlah Siswa */
@@ -1271,61 +1337,227 @@
       container.innerHTML = html;
     }
 
-    /* Render Seating Chart (Denah Tempat Duduk Bersilang) */
+    /* Render Seating Chart: 1 Meja Ada 2 Siswa (Kiri & Kanan), Per Baris 5 atau 6 Meja */
     function renderSeatingChart() {
       const selectedRoom = document.getElementById("select-denah-room").value;
       const gridContainer = document.getElementById("seating-grid");
+      const desksPerRow = parseInt(document.getElementById("select-desks-per-row").value, 10) || 6;
+      const roomCapacity = parseInt(document.getElementById("setting-room-capacity").value, 10) || 36;
+      const totalDesks = Math.ceil(roomCapacity / 2); // 36->18 meja, 38->19 meja, 40->20 meja
       
       const roomStudents = students.filter(s => s.ruang === selectedRoom);
 
+      // Konfigurasi CSS Grid Column sesuai opsi per baris 5 atau 6 meja
+      gridContainer.className = (desksPerRow === 5)
+        ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-2"
+        : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-2";
+
       if (roomStudents.length === 0) {
-        gridContainer.innerHTML = `<div class="col-span-6 text-center text-slate-400 py-8 text-xs">Belum ada siswa di ${selectedRoom}. Silakan generate data terlebih dahulu.</div>`;
+        gridContainer.innerHTML = `<div class="col-span-full text-center text-slate-400 py-8 text-xs">Belum ada siswa di ${selectedRoom}. Silakan generate data terlebih dahulu.</div>`;
         return;
       }
 
-      // Sort berdasarkan nomor meja 1-36
-      roomStudents.sort((a, b) => a.seatNumber - b.seatNumber);
-
       let gridHtml = "";
-      for (let i = 1; i <= 36; i++) {
-        const student = roomStudents.find(s => s.seatNumber === i);
-        
-        let badgeColor = "bg-slate-700 border-slate-600 text-slate-300";
-        let levelLabel = "Kosong";
 
-        if (student) {
-          if (student.tingkat === 7 || student.kelas.startsWith("7")) {
-            badgeColor = "bg-blue-950/80 border-blue-500/80 text-blue-200";
-            levelLabel = "Kelas 7";
-          } else if (student.tingkat === 8 || student.kelas.startsWith("8")) {
-            badgeColor = "bg-emerald-950/80 border-emerald-500/80 text-emerald-200";
-            levelLabel = "Kelas 8";
-          } else {
-            badgeColor = "bg-amber-950/80 border-amber-500/80 text-amber-200";
-            levelLabel = "Kelas 9";
+      for (let d = 1; d <= totalDesks; d++) {
+        const leftSeatNum = (d * 2) - 1;
+        const rightSeatNum = d * 2;
+
+        const leftStudent = roomStudents.find(s => s.seatNumber === leftSeatNum);
+        const rightStudent = (rightSeatNum <= roomCapacity) 
+          ? roomStudents.find(s => s.seatNumber === rightSeatNum) 
+          : null;
+
+        // Helper style kursi
+        function getSeatBadge(std, seatLabel) {
+          if (!std) {
+            return `
+              <div class="flex-1 bg-slate-900/70 border border-dashed border-slate-700 rounded p-1.5 text-center flex flex-col justify-center min-h-[52px]">
+                <span class="text-[9px] font-bold text-slate-500">${seatLabel}</span>
+                <span class="text-[8px] text-slate-600 italic">Kosong</span>
+              </div>
+            `;
           }
+
+          let colorClass = "bg-blue-950/90 border-blue-500/80 text-blue-200";
+          let tagClass = "bg-blue-600 text-white";
+          if (std.tingkat === 8 || std.kelas.startsWith("8")) {
+            colorClass = "bg-emerald-950/90 border-emerald-500/80 text-emerald-200";
+            tagClass = "bg-emerald-600 text-white";
+          } else if (std.tingkat === 9 || std.kelas.startsWith("9")) {
+            colorClass = "bg-amber-950/90 border-amber-500/80 text-amber-200";
+            tagClass = "bg-amber-600 text-slate-950";
+          }
+
+          return `
+            <div class="flex-1 ${colorClass} border rounded p-1 text-left flex flex-col justify-between min-h-[52px] shadow-sm">
+              <div class="flex items-center justify-between text-[9px] border-b border-white/10 pb-0.5">
+                <span class="font-extrabold text-[8.5px]">${seatLabel}</span>
+                <span class="text-[8px] font-bold px-1 rounded ${tagClass}">${std.kelas}</span>
+              </div>
+              <p class="font-bold text-[9px] truncate max-w-full my-0.5" title="${std.nama}">
+                ${std.nama.split(' ')[0]}
+              </p>
+              <p class="text-[7.5px] font-mono opacity-80 leading-none">${std.nisn}</p>
+            </div>
+          `;
         }
 
+        const deskCode = d < 10 ? `0${d}` : `${d}`;
+
         gridHtml += `
-          <div class="border rounded-lg p-2 ${badgeColor} transition hover:scale-105 shadow-sm text-center flex flex-col justify-between h-20">
-            <div class="flex items-center justify-between text-[10px] border-b border-white/10 pb-1">
-              <span class="font-extrabold">Meja ${i < 10 ? '0' + i : i}</span>
-              <span class="text-[9px] font-semibold opacity-90">${student ? student.kelas : '-'}</span>
+          <!-- SATU UNIT MEJA GANDA (2 SISWA) -->
+          <div class="bg-slate-800/90 border border-slate-600 rounded-xl p-2 shadow-md flex flex-col justify-between hover:border-emerald-500 transition">
+            <!-- Header Meja -->
+            <div class="flex items-center justify-between text-[10px] font-extrabold text-amber-400 border-b border-slate-700 pb-1 mb-1.5">
+              <span><i class="fa-solid fa-table"></i> Meja ${deskCode}</span>
+              <span class="text-[8px] font-normal text-slate-400">Kursi ${leftSeatNum}-${rightSeatNum}</span>
             </div>
-            <div class="my-auto">
-              <p class="font-bold text-[10px] truncate max-w-full" title="${student ? student.nama : 'Kosong'}">
-                ${student ? student.nama.split(' ')[0] : 'Kosong'}
-              </p>
-              <p class="text-[9px] font-mono opacity-80">${student ? student.nisn : ''}</p>
-            </div>
-            <div class="text-[8px] uppercase tracking-wider font-bold opacity-80">
-              ${levelLabel}
+
+            <!-- Bagian Dua Kursi: Kiri dan Kanan -->
+            <div class="flex gap-1.5">
+              ${getSeatBadge(leftStudent, `Kiri (${leftSeatNum})`)}
+              ${(rightSeatNum <= roomCapacity) ? getSeatBadge(rightStudent, `Kanan (${rightSeatNum})`) : ''}
             </div>
           </div>
         `;
       }
 
       gridContainer.innerHTML = gridHtml;
+    }
+
+    /* Cetak Lembar Denah Duduk Khusus (Clean Printable Layout) */
+    function renderPrintableDenahSheet() {
+      const selectedRoom = document.getElementById("select-denah-room").value;
+      const desksPerRow = parseInt(document.getElementById("select-desks-per-row").value, 10) || 6;
+      const roomCapacity = parseInt(document.getElementById("setting-room-capacity").value, 10) || 36;
+      const totalDesks = Math.ceil(roomCapacity / 2);
+      const examTitle = (document.getElementById("setting-exam-title").value || "KARTU PESERTA UJIAN").toUpperCase();
+      const schoolName = document.getElementById("setting-school").value.toUpperCase();
+      const academicYear = document.getElementById("setting-academic-year").value;
+      const place = document.getElementById("setting-place").value.trim() || "Ngabang";
+      const rawDate = document.getElementById("setting-date-picker").value;
+      const formattedDate = `${place}, ${formatIndonesianDate(rawDate)}`;
+      const signRole = document.getElementById("setting-sign-role").value;
+      const signName = document.getElementById("setting-sign-name").value;
+      const signNip = document.getElementById("setting-sign-nip").value;
+      const activeSignature = customSignaturePng || defaultSampleSignatureSvg;
+
+      const roomStudents = students.filter(s => s.ruang === selectedRoom);
+      const printSheet = document.getElementById("printable-denah-sheet");
+
+      let desksHtml = "";
+      for (let d = 1; d <= totalDesks; d++) {
+        const leftSeatNum = (d * 2) - 1;
+        const rightSeatNum = d * 2;
+        const leftStudent = roomStudents.find(s => s.seatNumber === leftSeatNum);
+        const rightStudent = (rightSeatNum <= roomCapacity) ? roomStudents.find(s => s.seatNumber === rightSeatNum) : null;
+
+        function getDeskSeatPrint(std, posLabel) {
+          if (!std) {
+            return `
+              <div style="flex:1; border: 1px dashed #94a3b8; padding: 3px; border-radius: 4px; text-align: center; min-height: 48px;">
+                <div style="font-size: 8px; font-weight: bold; color: #64748b;">${posLabel}</div>
+                <div style="font-size: 8px; color: #94a3b8; font-style: italic;">Kosong</div>
+              </div>
+            `;
+          }
+
+          let bgBadge = "#e0f2fe"; // Biru kls 7
+          let borderBadge = "#38bdf8";
+          if (std.tingkat === 8 || std.kelas.startsWith("8")) {
+            bgBadge = "#dcfce7"; // Hijau kls 8
+            borderBadge = "#4ade80";
+          } else if (std.tingkat === 9 || std.kelas.startsWith("9")) {
+            bgBadge = "#fef3c7"; // Kuning kls 9
+            borderBadge = "#facc15";
+          }
+
+          return `
+            <div style="flex: 1; border: 1px solid ${borderBadge}; background: ${bgBadge}; padding: 3px; border-radius: 4px; text-align: left; min-height: 48px;">
+              <div style="display:flex; justify-content: space-between; font-size: 8px; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px;">
+                <span>${posLabel}</span>
+                <span style="background: #1e293b; color: #ffffff; padding: 0 3px; border-radius: 2px;">${std.kelas}</span>
+              </div>
+              <div style="font-size: 8.5px; font-weight: bold; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${std.nama}
+              </div>
+              <div style="font-size: 8px; font-family: monospace; color: #334155;">${std.noPeserta}</div>
+            </div>
+          `;
+        }
+
+        const deskCode = d < 10 ? `0${d}` : `${d}`;
+
+        desksHtml += `
+          <div style="border: 1.5px solid #334155; border-radius: 6px; padding: 4px; background: #f8fafc; break-inside: avoid;">
+            <div style="display: flex; justify-content: space-between; font-size: 8.5px; font-weight: 800; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 3px;">
+              <span>MEJA ${deskCode}</span>
+              <span style="font-weight: normal; color: #64748b;">Kursi ${leftSeatNum}-${rightSeatNum}</span>
+            </div>
+            <div style="display: flex; gap: 4px;">
+              ${getDeskSeatPrint(leftStudent, `Kiri (${leftSeatNum})`)}
+              ${(rightSeatNum <= roomCapacity) ? getDeskSeatPrint(rightStudent, `Kanan (${rightSeatNum})`) : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      printSheet.innerHTML = `
+        <div style="width: 100%; font-family: 'Inter', Arial, sans-serif; color: #000000; padding: 4mm 0;">
+          <!-- KOP RESMI CETAK DENAH -->
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000000; padding-bottom: 6px; margin-bottom: 8px;">
+            <img src="${logoKemenagSvg}" style="width: 44px; height: 44px; object-fit: contain;">
+            <div style="text-align: center; flex: 1;">
+              <h2 style="font-size: 13px; font-weight: 800; margin: 0; text-transform: uppercase;">DENAH TEMPAT DUDUK PESERTA UJIAN</h2>
+              <h3 style="font-size: 11px; font-weight: 700; margin: 1px 0; text-transform: uppercase;">${examTitle}</h3>
+              <p style="font-size: 10px; font-weight: 600; margin: 0;">${schoolName} • TAHUN PELAJARAN ${academicYear}</p>
+            </div>
+            <img src="${logoMtsnSvg}" style="width: 44px; height: 44px; object-fit: contain;">
+          </div>
+
+          <!-- KETERANGAN RUANGAN & KAPASITAS -->
+          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin-bottom: 6px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
+            <span>RUANG: ${selectedRoom.toUpperCase()}</span>
+            <span>KAPASITAS: ${roomStudents.length} SISWA (${totalDesks} MEJA GANDA)</span>
+            <span>POLA: 1 MEJA 2 SISWA BERSILANG</span>
+          </div>
+
+          <!-- PAPAN TULIS DEPAN -->
+          <div style="width: 100%; background: #334155; color: #ffffff; text-align: center; font-size: 9px; font-weight: bold; padding: 3px 0; border-radius: 4px; margin-bottom: 8px;">
+            [ PAPAN TULIS & MEJA PENGAWAS RUANG ]
+          </div>
+
+          <!-- GRID MEJA PRINT -->
+          <div style="display: grid; grid-template-columns: repeat(${desksPerRow}, 1fr); gap: 6px; margin-bottom: 10px;">
+            ${desksHtml}
+          </div>
+
+          <!-- KETERANGAN PINTU & TANDA TANGAN PENGAWAS -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; border-top: 1px solid #cbd5e1; pt-2;">
+            <div style="font-size: 9px; color: #475569;">
+              <p style="font-weight: bold; margin-bottom: 2px;">Keterangan Warna:</p>
+              <div style="display: flex; gap: 8px;">
+                <span>🔵 Kelas 7</span>
+                <span>🟢 Kelas 8</span>
+                <span>🟡 Kelas 9</span>
+              </div>
+              <p style="margin-top: 4px;">* Ditempel di dinding / depan pintu ruang ujian.</p>
+            </div>
+
+            <!-- Tanda Tangan Kepala Madrasah -->
+            <div style="text-align: right; width: 60mm;">
+              <p style="font-size: 8.5px; margin: 0;">${formattedDate}</p>
+              <p style="font-size: 8.5px; font-weight: bold; margin: 1px 0;">${signRole},</p>
+              <div style="height: 30px; margin: -4px 0; display: flex; justify-content: flex-end; align-items: center;">
+                <img src="${activeSignature}" style="height: 38px; max-width: 55mm; object-fit: contain;">
+              </div>
+              <p style="font-size: 9px; font-weight: bold; text-decoration: underline; margin: 0;">${signName}</p>
+              <p style="font-size: 8px; margin: 0; font-family: monospace;">NIP. ${signNip}</p>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     /* Render Tabel Database Siswa */
@@ -1626,13 +1858,22 @@
     /* Print Triggers */
     function triggerPrintAll() {
       switchMainTab('preview');
+      document.body.classList.remove('printing-denah');
+      document.body.classList.add('printing-cards');
       setTimeout(() => {
         window.print();
+        document.body.classList.remove('printing-cards');
       }, 250);
     }
 
     function printSeatingChartOnly() {
-      window.print();
+      renderPrintableDenahSheet();
+      document.body.classList.remove('printing-cards');
+      document.body.classList.add('printing-denah');
+      setTimeout(() => {
+        window.print();
+        document.body.classList.remove('printing-denah');
+      }, 250);
     }
 
     /* Notification Toast */
