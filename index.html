@@ -1712,6 +1712,229 @@
       printStyleTag.innerHTML = `@media print { @page { ${rule} } }`;
     }
 
+    /* Tab Switching Logic */
+    function switchMainTab(tab) {
+      const tabPreview = document.getElementById("tab-preview-content");
+      const tabDenah = document.getElementById("tab-denah-content");
+      const tabData = document.getElementById("tab-data-content");
+
+      const btnPreview = document.getElementById("btn-tab-preview");
+      const btnDenah = document.getElementById("btn-tab-denah");
+      const btnData = document.getElementById("btn-tab-data");
+
+      tabPreview.classList.add("hidden");
+      tabDenah.classList.add("hidden");
+      tabData.classList.add("hidden");
+
+      btnPreview.className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2";
+      btnDenah.className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2";
+      btnData.className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2";
+
+      if (tab === 'preview') {
+        tabPreview.classList.remove("hidden");
+        btnPreview.className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white flex items-center gap-2";
+        renderCards();
+      } else if (tab === 'denah') {
+        tabDenah.classList.remove("hidden");
+        btnDenah.className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white flex items-center gap-2";
+        renderSeatingChart();
+      } else if (tab === 'data') {
+        tabData.classList.remove("hidden");
+        btnData.className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white flex items-center gap-2";
+        renderTable();
+      }
+    }
+
+    /* Render Tabel Data Siswa */
+    function renderTable() {
+      const tbody = document.getElementById("student-table-body");
+      if (!tbody) return;
+
+      if (students.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="text-center py-8 text-slate-400">
+              <i class="fa-solid fa-users-slash text-2xl mb-1 text-slate-500"></i>
+              <p>Belum ada data siswa.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let rows = "";
+      students.forEach((s, idx) => {
+        let tagColor = "bg-blue-900/60 text-blue-300 border-blue-700";
+        if (s.tingkat === 8 || s.kelas.startsWith("8")) {
+          tagColor = "bg-emerald-900/60 text-emerald-300 border-emerald-700";
+        } else if (s.tingkat === 9 || s.kelas.startsWith("9")) {
+          tagColor = "bg-amber-900/60 text-amber-300 border-amber-700";
+        }
+
+        rows += `
+          <tr class="hover:bg-slate-700/40 transition-colors">
+            <td class="p-2.5 text-center text-slate-400 font-mono">${idx + 1}</td>
+            <td class="p-2.5 font-bold text-slate-200 font-mono">${s.noPeserta}</td>
+            <td class="p-2.5 font-semibold text-white">${s.nama}</td>
+            <td class="p-2.5 font-mono text-cyan-300">${s.nisn}</td>
+            <td class="p-2.5 font-mono font-bold text-emerald-400">${s.password}</td>
+            <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[11px] font-bold border ${tagColor}">${s.kelas}</span></td>
+            <td class="p-2.5 text-slate-300">${s.ruang}</td>
+            <td class="p-2.5 text-slate-300 font-medium">${s.meja}</td>
+            <td class="p-2.5 text-slate-400">${s.sesi || 'Sesi 1'}</td>
+            <td class="p-2.5 text-center">
+              <button onclick="deleteSingleStudent('${s.id}')" title="Hapus Siswa" class="text-rose-400 hover:text-rose-300 p-1 rounded hover:bg-rose-950/40">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = rows;
+    }
+
+    /* Modal Hapus Data Handlers */
+    function openDeleteModal() {
+      const modal = document.getElementById("modal-delete-choice");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    }
+
+    function closeDeleteModal() {
+      const modal = document.getElementById("modal-delete-choice");
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    function confirmDeleteByClass() {
+      const target = document.getElementById("select-delete-target").value;
+      let remaining = [];
+
+      if (target === "TINGKAT_7") {
+        remaining = students.filter(s => s.tingkat !== 7 && !s.kelas.startsWith("7"));
+      } else if (target === "TINGKAT_8") {
+        remaining = students.filter(s => s.tingkat !== 8 && !s.kelas.startsWith("8"));
+      } else if (target === "TINGKAT_9") {
+        remaining = students.filter(s => s.tingkat !== 9 && !s.kelas.startsWith("9"));
+      } else {
+        remaining = students.filter(s => s.kelas !== target);
+      }
+
+      const deletedCount = students.length - remaining.length;
+      if (deletedCount === 0) {
+        showToast("Tidak ada siswa yang cocok dengan kelas tersebut!");
+        return;
+      }
+
+      closeDeleteModal();
+
+      if (remaining.length === 0) {
+        students = [];
+        updateRoomDropdowns();
+        renderCards();
+        renderTable();
+        renderSeatingChart();
+        showToast("Seluruh data siswa telah dihapus!");
+      } else {
+        const rawList = remaining.map(s => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas }));
+        autoDistributeAndGenerate(rawList);
+        showToast(`Berhasil menghapus ${deletedCount} siswa. Meja ditata ulang!`);
+      }
+    }
+
+    function confirmDeleteAllStudents() {
+      students = [];
+      closeDeleteModal();
+      updateRoomDropdowns();
+      renderCards();
+      renderTable();
+      renderSeatingChart();
+      showToast("Seluruh data peserta ujian telah dikosongkan!");
+    }
+
+    function deleteSingleStudent(studentId) {
+      const filtered = students.filter(s => s.id !== studentId);
+      if (filtered.length === students.length) return;
+
+      if (filtered.length === 0) {
+        students = [];
+        updateRoomDropdowns();
+        renderCards();
+        renderTable();
+        renderSeatingChart();
+        showToast("Siswa berhasil dihapus!");
+      } else {
+        const rawList = filtered.map(s => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas }));
+        autoDistributeAndGenerate(rawList);
+        showToast("Siswa dihapus dan nomor meja otomatis ditata kembali!");
+      }
+    }
+
+    /* Modal Tambah Siswa Manual */
+    function openAddStudentModal() {
+      document.getElementById("modal-input-name").value = "";
+      document.getElementById("modal-input-nisn").value = "";
+      document.getElementById("modal-input-password").value = generateSecurePassword();
+      const modal = document.getElementById("modal-add-student");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeAddStudentModal() {
+      const modal = document.getElementById("modal-add-student");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function generateModalPassword() {
+      document.getElementById("modal-input-password").value = generateSecurePassword();
+    }
+
+    function saveModalStudent() {
+      const nama = document.getElementById("modal-input-name").value.trim();
+      const nisn = document.getElementById("modal-input-nisn").value.trim();
+      const kelas = document.getElementById("modal-input-class").value;
+
+      if (!nama || !nisn) {
+        showToast("Nama dan NISN wajib diisi!");
+        return;
+      }
+
+      closeAddStudentModal();
+      const currentRaw = students.map(s => ({ nisn: s.nisn, nama: s.nama, kelas: s.kelas }));
+      currentRaw.push({ nisn, nama, kelas });
+      autoDistributeAndGenerate(currentRaw);
+      showToast(`Siswa ${nama} berhasil ditambahkan!`);
+    }
+
+    /* Handler Upload Tanda Tangan & Cap PNG */
+    function handleSignatureUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        customSignaturePng = e.target.result;
+        document.getElementById("preview-ttd-thumb").src = customSignaturePng;
+        renderCards();
+        renderPrintableDenahSheet();
+        showToast("Tanda tangan & cap baru berhasil diunggah!");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetSignatureToDefault() {
+      customSignaturePng = null;
+      document.getElementById("preview-ttd-thumb").src = defaultSampleSignatureSvg;
+      renderCards();
+      renderPrintableDenahSheet();
+      showToast("Tanda tangan dikembalikan ke template awal!");
+    }
+
     /* Notification Toast */
     function showToast(msg) {
       const box = document.getElementById("toast-box");
