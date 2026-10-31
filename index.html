@@ -1553,13 +1553,6 @@
       const examTitle = (document.getElementById("setting-exam-title").value || "KARTU PESERTA UJIAN").toUpperCase();
       const schoolName = document.getElementById("setting-school").value.toUpperCase();
       const academicYear = document.getElementById("setting-academic-year").value;
-      const place = document.getElementById("setting-place").value.trim() || "Ngabang";
-      const rawDate = document.getElementById("setting-date-picker").value;
-      const formattedDate = `${place}, ${formatIndonesianDate(rawDate)}`;
-      const signRole = document.getElementById("setting-sign-role").value;
-      const signName = document.getElementById("setting-sign-name").value;
-      const signNip = document.getElementById("setting-sign-nip").value;
-      const activeSignature = customSignaturePng || defaultSampleSignatureSvg;
 
       const roomStudents = students.filter(s => s.ruang === selectedRoom);
       const printSheet = document.getElementById("printable-denah-sheet");
@@ -1574,33 +1567,33 @@
         function getDeskSeatPrint(std, posLabel) {
           if (!std) {
             return `
-              <div style="flex:1; border: 1px dashed #94a3b8; padding: 1px 3px; border-radius: 3px; text-align: center; height: 32px; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box;">
-                <div style="font-size: 7.5px; font-weight: bold; color: #64748b; line-height: 1;">${posLabel}</div>
-                <div style="font-size: 7px; color: #94a3b8; font-style: italic; line-height: 1;">Kosong</div>
+              <div style="flex:1; border: 1.2px dashed #94a3b8; padding: 2px 4px; border-radius: 4px; text-align: center; height: 38px; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; background: #ffffff;">
+                <div style="font-size: 8px; font-weight: bold; color: #64748b; line-height: 1;">${posLabel}</div>
+                <div style="font-size: 7.5px; color: #94a3b8; font-style: italic; line-height: 1.1;">Kosong</div>
               </div>
             `;
           }
 
           let bgBadge = "#e0f2fe"; // Biru kls 7
-          let borderBadge = "#38bdf8";
+          let borderBadge = "#0284c7";
           if (std.tingkat === 8 || std.kelas.startsWith("8")) {
             bgBadge = "#dcfce7"; // Hijau kls 8
-            borderBadge = "#4ade80";
+            borderBadge = "#16a34a";
           } else if (std.tingkat === 9 || std.kelas.startsWith("9")) {
             bgBadge = "#fef3c7"; // Kuning kls 9
-            borderBadge = "#facc15";
+            borderBadge = "#d97706";
           }
 
           return `
-            <div style="flex: 1; border: 1px solid ${borderBadge}; background: ${bgBadge}; padding: 1.5px 3px; border-radius: 3px; text-align: left; height: 34px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
-              <div style="display:flex; justify-content: space-between; align-items: center; font-size: 7.5px; font-weight: bold; border-bottom: 0.5px solid rgba(0,0,0,0.12); padding-bottom: 0.5px; line-height: 1;">
-                <span style="font-size: 7.2px; font-weight: 800;">${posLabel}</span>
-                <span style="background: #1e293b; color: #ffffff; padding: 0.5px 3px; border-radius: 2px; font-size: 7px; font-weight: 900; line-height: 1;">${std.kelas}</span>
+            <div style="flex: 1; border: 1.2px solid ${borderBadge}; background: ${bgBadge}; padding: 2.5px 4px; border-radius: 4px; text-align: left; height: 40px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
+              <div style="display:flex; justify-content: space-between; align-items: center; font-size: 8px; font-weight: bold; border-bottom: 0.5px solid rgba(0,0,0,0.15); padding-bottom: 1px; line-height: 1;">
+                <span style="font-size: 7.8px; font-weight: 800; color: #0f172a;">${posLabel}</span>
+                <span style="background: #0f172a; color: #ffffff; padding: 0.5px 3.5px; border-radius: 2px; font-size: 7.5px; font-weight: 900; line-height: 1;">${std.kelas}</span>
               </div>
-              <div style="font-size: 7.8px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; line-height: 1.1;">
+              <div style="font-size: 8.5px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; line-height: 1.15;">
                 ${std.nama}
               </div>
-              <div style="font-size: 6.8px; font-family: monospace; font-weight: 700; color: #334155; line-height: 1;">${std.noPeserta}</div>
+              <div style="font-size: 7.5px; font-family: monospace; font-weight: 800; color: #334155; line-height: 1;">${std.noPeserta}</div>
             </div>
           `;
         }
@@ -1608,12 +1601,12 @@
         const deskCode = d < 10 ? `0${d}` : `${d}`;
 
         desksHtml += `
-          <div style="border: 1.2px solid #334155; border-radius: 4px; padding: 2px 3px; background: #f8fafc; break-inside: avoid; box-sizing: border-box;">
-            <div style="display: flex; justify-content: space-between; font-size: 7.8px; font-weight: 900; border-bottom: 0.5px solid #cbd5e1; padding-bottom: 0.5px; margin-bottom: 1.5px; line-height: 1;">
-              <span style="color: #0f172a;">MEJA ${deskCode}</span>
-              <span style="font-weight: 600; color: #475569; font-size: 7px;">K ${leftSeatNum}-${rightSeatNum}</span>
+          <div style="border: 1.5px solid #1e293b; border-radius: 5px; padding: 3px 4px; background: #ffffff; break-inside: avoid; box-sizing: border-box; box-shadow: 0 1px 2px rgba(0,0,0,0.06);">
+            <div style="display: flex; justify-content: space-between; font-size: 8.5px; font-weight: 900; border-bottom: 1px solid #cbd5e1; padding-bottom: 1px; margin-bottom: 2.5px; line-height: 1;">
+              <span style="color: #0f172a; letter-spacing: 0.3px;">MEJA ${deskCode}</span>
+              <span style="font-weight: 700; color: #475569; font-size: 7.5px;">Kursi ${leftSeatNum}-${rightSeatNum}</span>
             </div>
-            <div style="display: flex; gap: 2.5px;">
+            <div style="display: flex; gap: 3.5px;">
               ${getDeskSeatPrint(leftStudent, `Kiri (${leftSeatNum})`)}
               ${(rightSeatNum <= roomCapacity) ? getDeskSeatPrint(rightStudent, `Kanan (${rightSeatNum})`) : ''}
             </div>
@@ -1625,57 +1618,55 @@
         <div style="width: 100%; max-width: 281mm; height: 198mm; margin: 0 auto; font-family: 'Inter', Arial, sans-serif; color: #000000; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
           <!-- KOP RESMI CETAK DENAH -->
           <div>
-            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000000; padding-bottom: 2px; margin-bottom: 3px;">
-              <img src="${logoKemenagSvg}" style="width: 40px; height: 40px; object-fit: contain;">
-              <div style="text-align: center; flex: 1; padding: 0 8px;">
-                <h2 style="font-size: 12px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.15;">DENAH TEMPAT DUDUK PESERTA UJIAN</h2>
-                <h3 style="font-size: 9.5px; font-weight: 800; margin: 1px 0; text-transform: uppercase; color: #0f172a; line-height: 1.15;">${examTitle}</h3>
-                <p style="font-size: 8.5px; font-weight: 700; margin: 0; color: #334155; line-height: 1.15;">${schoolName} • TAHUN PELAJARAN ${academicYear}</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000000; padding-bottom: 4px; margin-bottom: 6px;">
+              <img src="${logoKemenagSvg}" style="width: 44px; height: 44px; object-fit: contain;">
+              <div style="text-align: center; flex: 1; padding: 0 10px;">
+                <h2 style="font-size: 13.5px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.15;">DENAH TEMPAT DUDUK PESERTA UJIAN</h2>
+                <h3 style="font-size: 10.5px; font-weight: 800; margin: 2px 0; text-transform: uppercase; color: #0f172a; line-height: 1.15;">${examTitle}</h3>
+                <p style="font-size: 9px; font-weight: 700; margin: 0; color: #334155; line-height: 1.15;">${schoolName} • TAHUN PELAJARAN ${academicYear}</p>
               </div>
-              <img src="${logoMtsnSvg}" style="width: 40px; height: 40px; object-fit: contain;">
+              <img src="${logoMtsnSvg}" style="width: 44px; height: 44px; object-fit: contain;">
             </div>
 
             <!-- KETERANGAN RUANGAN & POLA BERSILANG -->
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 8.5px; font-weight: 800; margin-bottom: 3px; background: #e2e8f0; padding: 2px 8px; border-radius: 3px; border: 1px solid #cbd5e1; line-height: 1.2;">
-              <span>RUANG: <span style="color: #065f46; font-size: 9.5px;">${selectedRoom.toUpperCase()}</span></span>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 800; margin-bottom: 8px; background: #f1f5f9; padding: 3px 10px; border-radius: 4px; border: 1.2px solid #cbd5e1; line-height: 1.2;">
+              <span>RUANGAN: <span style="color: #047857; font-size: 11px; font-weight: 900;">${selectedRoom.toUpperCase()}</span></span>
               <span>KAPASITAS: ${roomStudents.length} SISWA (${totalDesks} MEJA GANDA)</span>
               <span>POLA: 1 MEJA 2 SISWA BERSILANG (KELAS 7, 8 & 9)</span>
             </div>
 
-            <!-- PAPAN TULIS & MEJA PENGAWAS DI DEPAN -->
-            <div style="width: 100%; background: #1e293b; color: #ffffff; text-align: center; font-size: 8px; font-weight: 900; letter-spacing: 1px; padding: 2px 0; border-radius: 3px; margin-bottom: 4px; line-height: 1.2;">
-              [ PAPAN TULIS & MEJA PENGAWAS RUANG ]
+            <!-- PAPAN TULIS & MEJA PENGAWAS DI DEPAN (MIRIP CONTOH GAMBAR) -->
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div style="border: 1.5px solid #64748b; background: #e2e8f0; font-size: 8.5px; font-weight: 900; padding: 3.5px 12px; border-radius: 4px; letter-spacing: 0.5px; color: #0f172a;">
+                MEJA PENGAWAS
+              </div>
+              <div style="flex: 1; max-width: 60%; background: #1e293b; color: #ffffff; text-align: center; font-size: 8.5px; font-weight: 900; letter-spacing: 1px; padding: 3px 0; border-radius: 4px;">
+                [ PAPAN TULIS DEPAN ]
+              </div>
+              <div style="font-size: 8px; font-weight: bold; color: #475569; text-align: right;">
+                PINTU MASUK ➡
+              </div>
             </div>
 
-            <!-- GRID MEJA PRINT LANDSCAPE (5 atau 6 MEJA PER BARIS) -->
-            <div style="display: grid; grid-template-columns: repeat(${desksPerRow}, 1fr); gap: 3.5px; margin-bottom: 4px;">
+            <!-- GRID MEJA PRINT LANDSCAPE DENGAN JARAK RENGGANG VERTIKAL (ROW-GAP TINGGI MEJA DEPAN-BELAKANG) -->
+            <div style="display: grid; grid-template-columns: repeat(${desksPerRow}, 1fr); column-gap: 6mm; row-gap: 13.5mm; margin-bottom: 8px; padding-top: 2mm;">
               ${desksHtml}
             </div>
           </div>
 
-          <!-- KETERANGAN PINTU, WARNA & TANDA TANGAN (COMPACT FIT TO 1 PAGE LANDSCAPE) -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #cbd5e1; padding-top: 2px; margin-top: 2px;">
-            <div style="font-size: 7.5px; color: #334155; line-height: 1.25;">
-              <div style="font-weight: 800; margin-bottom: 1px;">Keterangan Warna Tingkat Kelas:</div>
-              <div style="display: flex; gap: 8px; font-weight: 700;">
-                <span style="color: #0369a1;">🟦 Siswa Kelas 7</span>
-                <span style="color: #15803d;">🟩 Siswa Kelas 8</span>
-                <span style="color: #b45309;">🟨 Siswa Kelas 9</span>
+          <!-- FOOTER DENAH: TANPA TANDA TANGAN (HANYA KETERANGAN WARNA & PENUNJUK RUANG) -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1.5px solid #000000; padding-top: 5px; margin-top: 6px;">
+            <div style="font-size: 8.5px; color: #0f172a; line-height: 1.3;">
+              <div style="font-weight: 900; margin-bottom: 2px;">Keterangan Tingkat Kelas:</div>
+              <div style="display: flex; gap: 14px; font-weight: 800; font-size: 9px;">
+                <span style="color: #0369a1;"><span style="display:inline-block; width:10px; height:10px; background:#e0f2fe; border:1.2px solid #0284c7; border-radius:2px; vertical-align:middle; margin-right:3px;"></span> Siswa Kelas 7</span>
+                <span style="color: #15803d;"><span style="display:inline-block; width:10px; height:10px; background:#dcfce7; border:1.2px solid #16a34a; border-radius:2px; vertical-align:middle; margin-right:3px;"></span> Siswa Kelas 8</span>
+                <span style="color: #b45309;"><span style="display:inline-block; width:10px; height:10px; background:#fef3c7; border:1.2px solid #d97706; border-radius:2px; vertical-align:middle; margin-right:3px;"></span> Siswa Kelas 9</span>
               </div>
-              <p style="margin-top: 1px; margin-bottom: 0; font-style: italic; color: #64748b;">
-                * 1 Meja Panjang = 2 Kursi (Kiri & Kanan). Lembar ini ditempel di pintu masuk ruang ujian.
-              </p>
             </div>
 
-            <!-- Tanda Tangan Kepala Madrasah -->
-            <div style="text-align: right; width: 55mm;">
-              <p style="font-size: 7.5px; margin: 0; color: #1e293b; line-height: 1;">${formattedDate}</p>
-              <p style="font-size: 7.5px; font-weight: 800; margin: 1px 0; line-height: 1;">${signRole},</p>
-              <div style="height: 22px; margin: -2px 0; display: flex; justify-content: flex-end; align-items: center;">
-                <img src="${activeSignature}" style="height: 28px; max-width: 50mm; object-fit: contain;">
-              </div>
-              <p style="font-size: 8px; font-weight: 900; text-decoration: underline; margin: 0; color: #000000; line-height: 1;">${signName}</p>
-              <p style="font-size: 7px; margin: 0; font-family: monospace; font-weight: bold; color: #334155; line-height: 1;">NIP. ${signNip}</p>
+            <div style="text-align: right; font-size: 8px; color: #475569; font-style: italic;">
+              * Tempelkan denah ini di kaca / pintu masuk ruang ujian untuk mempermudah peserta menemukan nomor meja.
             </div>
           </div>
         </div>
