@@ -23,7 +23,7 @@
     /* Ukuran Standar Kartu KTP / CR80 ID-1: 85.6mm x 54mm */
     .id-card {
       width: 85.6mm;
-      height: 54mm;
+      height: 52.8mm;
       box-sizing: border-box;
       position: relative;
       overflow: hidden;
@@ -32,7 +32,7 @@
       break-inside: avoid;
     }
 
-    /* Print optimization */
+    /* Print optimization: Presisi 10 Kartu per Lembar A4 (2 Kolom x 5 Baris) */
     @media print {
       body * {
         visibility: hidden;
@@ -49,8 +49,19 @@
         top: 0;
         width: 100%;
         margin: 0;
-        padding: 5mm;
+        padding: 0;
         background: transparent;
+        display: grid !important;
+        grid-template-columns: repeat(2, 85.6mm) !important;
+        justify-content: center !important;
+        gap: 2.2mm 5mm !important;
+      }
+      .id-card {
+        width: 85.6mm !important;
+        height: 52.8mm !important;
+        box-shadow: none !important;
+        border: 1px solid #475569 !important;
+        margin: 0 !important;
       }
       .page-break {
         page-break-after: always;
@@ -58,7 +69,7 @@
       }
       @page {
         size: A4 portrait;
-        margin: 8mm 6mm;
+        margin: 8mm 6mm 6mm 6mm;
       }
     }
 
@@ -277,11 +288,11 @@
         <!-- Area Kartu: Standar Ukuran KTP CR80 dalam grid 2 kolom A4 Friendly -->
         <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-inner">
           <p class="text-xs text-slate-400 mb-3 flex items-center gap-1.5 no-print">
-            <i class="fa-solid fa-circle-info text-cyan-400"></i> Dimensi Presisi: <strong>85.6 mm × 54.0 mm</strong> (Rasio Asli KTP / Student ID Card Indonesia). Siap cetak 8–10 kartu per lembar A4.
+            <i class="fa-solid fa-circle-info text-cyan-400"></i> Dimensi Presisi: <strong>85.6 mm × 52.8 mm</strong> (Rasio Asli ID Card KTP Indonesia). Didesain pas <strong>10 kartu per lembar A4</strong> (2 kolom × 5 baris).
           </p>
 
           <!-- PRINTABLE CONTAINER: Ditampilkan di layar & target cetak window.print() -->
-          <div id="printable-area" class="flex flex-wrap justify-center gap-4 py-2">
+          <div id="printable-area" class="flex flex-wrap justify-center gap-3 py-1 print:gap-0">
             <!-- Kartu-kartu di-render di sini via JS -->
           </div>
         </div>
@@ -1195,41 +1206,44 @@
               </div>
             </div>
 
-            <!-- CARD BODY (Biodata Peserta Tanpa Foto - Font Diperbesar & Jelas) -->
-            <div class="px-3.5 py-1 flex-1 flex flex-col justify-center text-[9px] leading-tight font-sans">
-              <div class="space-y-[3px]">
-                
-                <div class="flex items-baseline">
-                  <span class="w-[28mm] text-slate-700 font-semibold text-[8.8px]">No Peserta</span>
-                  <span class="text-slate-950 font-extrabold text-[9.2px] tracking-wide">: ${s.noPeserta}</span>
-                </div>
-
-                <div class="flex items-baseline">
-                  <span class="w-[28mm] text-slate-700 font-semibold text-[8.8px]">Nama Lengkap</span>
-                  <span class="text-slate-950 font-bold text-[9.5px] truncate max-w-[48mm]">: ${s.nama}</span>
-                </div>
-
-                <div class="flex items-baseline">
-                  <span class="w-[28mm] text-slate-700 font-semibold text-[8.8px]">Kelas / Sesi</span>
-                  <span class="text-slate-900 font-bold text-[9px]">: ${s.kelas} / ${s.sesi}</span>
-                </div>
-
-                <div class="flex items-baseline">
-                  <span class="w-[28mm] text-slate-700 font-semibold text-[8.8px]">Username (NISN)</span>
-                  <span class="text-slate-950 font-extrabold text-[9.5px] tracking-wider font-mono">: ${s.nisn}</span>
-                </div>
-
-                <div class="flex items-baseline">
-                  <span class="w-[28mm] text-slate-700 font-semibold text-[8.8px]">Password CBT</span>
-                  <span class="text-emerald-800 font-black font-mono text-[10px] tracking-widest bg-emerald-50 px-1 rounded">: ${s.password}</span>
-                </div>
-
-                <div class="flex items-baseline">
-                  <span class="w-[28mm] text-slate-700 font-semibold text-[8.8px]">Ruang / Meja</span>
-                  <span class="text-slate-950 font-extrabold text-[9.2px]">: ${s.ruang} / ${s.meja}</span>
-                </div>
-
-              </div>
+            <!-- CARD BODY (Biodata Peserta: Sesi Dihapus, Tanda : Rata Tegak Sempurna) -->
+            <div class="px-3 py-0.5 flex-1 flex flex-col justify-center text-[9px] leading-tight font-sans">
+              <table class="w-full border-collapse text-[8.8px]">
+                <tbody>
+                  <tr class="align-baseline leading-[1.25]">
+                    <td class="w-[25mm] text-slate-700 font-semibold whitespace-nowrap py-[0.5px]">No Peserta</td>
+                    <td class="w-[2.5mm] text-center font-bold text-slate-900">:</td>
+                    <td class="text-slate-950 font-extrabold tracking-wide py-[0.5px]">${s.noPeserta}</td>
+                  </tr>
+                  <tr class="align-baseline leading-[1.25]">
+                    <td class="text-slate-700 font-semibold whitespace-nowrap py-[0.5px]">Nama Lengkap</td>
+                    <td class="text-center font-bold text-slate-900">:</td>
+                    <td class="text-slate-950 font-bold text-[9.3px] truncate max-w-[50mm] py-[0.5px]">${s.nama}</td>
+                  </tr>
+                  <tr class="align-baseline leading-[1.25]">
+                    <td class="text-slate-700 font-semibold whitespace-nowrap py-[0.5px]">Kelas</td>
+                    <td class="text-center font-bold text-slate-900">:</td>
+                    <td class="text-slate-900 font-bold py-[0.5px]">${s.kelas}</td>
+                  </tr>
+                  <tr class="align-baseline leading-[1.25]">
+                    <td class="text-slate-700 font-semibold whitespace-nowrap py-[0.5px]">Username (NISN)</td>
+                    <td class="text-center font-bold text-slate-900">:</td>
+                    <td class="text-slate-950 font-extrabold font-mono tracking-wider text-[9.2px] py-[0.5px]">${s.nisn}</td>
+                  </tr>
+                  <tr class="align-baseline leading-[1.25]">
+                    <td class="text-slate-700 font-semibold whitespace-nowrap py-[0.5px]">Password CBT</td>
+                    <td class="text-center font-bold text-slate-900">:</td>
+                    <td class="py-[0.5px]">
+                      <span class="text-emerald-900 font-black font-mono text-[9.6px] tracking-widest bg-emerald-50 px-1 py-0.5 rounded border border-emerald-300/60 inline-block">${s.password}</span>
+                    </td>
+                  </tr>
+                  <tr class="align-baseline leading-[1.25]">
+                    <td class="text-slate-700 font-semibold whitespace-nowrap py-[0.5px]">Ruang / Meja</td>
+                    <td class="text-center font-bold text-slate-900">:</td>
+                    <td class="text-slate-950 font-extrabold text-[9px] py-[0.5px]">${s.ruang} / ${s.meja}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <!-- FOOTER KARTU (TANDA TANGAN & CAP DIGITAL) -->
@@ -1240,11 +1254,11 @@
                 <p class="text-[7.2px] font-bold text-slate-800 leading-none">${signRole},</p>
 
                 <!-- Overlay Gambar Tanda Tangan & Cap PNG Transparan -->
-                <div class="h-[25px] my-[-4px] flex justify-end items-center relative pointer-events-none">
-                  <img src="${activeSignature}" alt="TTD & Cap" class="h-[36px] max-w-[44mm] object-contain filter drop-shadow">
+                <div class="h-[23px] my-[-3px] flex justify-end items-center relative pointer-events-none">
+                  <img src="${activeSignature}" alt="TTD & Cap" class="h-[34px] max-w-[44mm] object-contain filter drop-shadow">
                 </div>
 
-                <p class="text-[7.6px] font-extrabold text-slate-950 underline leading-tight">${signName}</p>
+                <p class="text-[7.5px] font-extrabold text-slate-950 underline leading-tight">${signName}</p>
                 <p class="text-[6.5px] text-slate-700 leading-none font-mono">NIP. ${signNip}</p>
 
               </div>
