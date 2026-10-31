@@ -67,7 +67,7 @@
         margin: 0 !important;
       }
 
-      /* Mode Cetak Denah Tempat Duduk Khusus */
+      /* Mode Cetak Denah Tempat Duduk Khusus (Landscape A4) */
       body.printing-denah #printable-denah-sheet,
       body.printing-denah #printable-denah-sheet * {
         visibility: visible;
@@ -77,9 +77,12 @@
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 10mm;
+        width: 297mm !important;
+        min-height: 210mm !important;
+        max-width: 297mm !important;
+        margin: 0 !important;
+        padding: 8mm 12mm !important;
+        box-sizing: border-box !important;
         background: #ffffff !important;
         color: #000000 !important;
       }
@@ -88,9 +91,22 @@
         page-break-after: always;
         break-after: page;
       }
-      @page {
-        size: A4 portrait;
-        margin: 8mm 6mm 6mm 6mm;
+    }
+
+    /* Pengaturan Orientasi Halaman Cetak Dinamis */
+    @page {
+      size: A4 portrait;
+      margin: 8mm 6mm 6mm 6mm;
+    }
+
+    body.printing-denah {
+      width: 297mm;
+      height: 210mm;
+    }
+
+    @media print {
+      body.printing-denah {
+        page-break-inside: avoid;
       }
     }
 
@@ -1164,45 +1180,143 @@
 
     /* Algoritma Distribusi Acak Merata: Kelas 7, 8, dan 9 (Masing-masing A, B, C, D, E) */
     function generateRandomizedStudentData() {
-      const indonesianNames = [
-        "Ahmad Pratama", "Nabila Nur Aini", "Muhammad Zaki", "Siti Rahmawati", "Rizky Firmansyah",
-        "Putri Ayu Lestari", "Dimas Anggara", "Anisa Tri Wahyuni", "Fajar Ramadhan", "Dewi Sartika",
-        "Bayu Saputra", "Tiara Amanda", "Hafiz Al-Fath", "Zahra Nurul Izzah", "Aldi Maulana",
-        "Nurul Fadilah", "Bagas Setiawan", "Citra Kirana", "Gilang Ramadhan", "Aisyah Maharani",
-        "Daffa Ibnu Malik", "Safira Azzahra", "Kevin Jonathan", "Salma Khairunnisa", "Rendi Ardiansyah",
-        "Intan Permata", "Fikri Haikal", "Mutia Cantika", "Farhan Dwi Putra", "Syifa Nuraini",
-        "Ilham Maulana", "Zalfa Naura", "Wildan Pratama", "Keysha Aurelia", "Rian Hidayat",
-        "Lutfi Hakim", "Danang Prakoso", "Dinda Amelia", "Fadel Muhammad", "Tasya Kamila"
+      // Data Siswa Default Bawaan Lengkap Berdasarkan Template Excel (Kelas 7, 8, 9 Rombel A - E)
+      const defaultStudentList = [
+        // KELAS 7 (7A - 7E)
+        { nisn: "0135001001", nama: "Ahmad Pratama", kelas: "7A" },
+        { nisn: "0135001002", nama: "Aisyah Maharani", kelas: "7A" },
+        { nisn: "0135001003", nama: "Aldi Maulana", kelas: "7A" },
+        { nisn: "0135001004", nama: "Anisa Tri Wahyuni", kelas: "7A" },
+        { nisn: "0135001005", nama: "Bagas Setiawan", kelas: "7A" },
+        { nisn: "0135001006", nama: "Bayu Saputra", kelas: "7A" },
+        { nisn: "0135001007", nama: "Citra Kirana", kelas: "7A" },
+        { nisn: "0135001008", nama: "Daffa Ibnu Malik", kelas: "7A" },
+        
+        { nisn: "0135001009", nama: "Dewi Sartika", kelas: "7B" },
+        { nisn: "0135001010", nama: "Dimas Anggara", kelas: "7B" },
+        { nisn: "0135001011", nama: "Dinda Amelia", kelas: "7B" },
+        { nisn: "0135001012", nama: "Fadel Muhammad", kelas: "7B" },
+        { nisn: "0135001013", nama: "Fajar Ramadhan", kelas: "7B" },
+        { nisn: "0135001014", nama: "Farhan Dwi Putra", kelas: "7B" },
+        { nisn: "0135001015", nama: "Fikri Haikal", kelas: "7B" },
+        
+        { nisn: "0135001016", nama: "Gilang Ramadhan", kelas: "7C" },
+        { nisn: "0135001017", nama: "Hafiz Al-Fath", kelas: "7C" },
+        { nisn: "0135001018", nama: "Ilham Maulana", kelas: "7C" },
+        { nisn: "0135001019", nama: "Intan Permata", kelas: "7C" },
+        { nisn: "0135001020", nama: "Kevin Jonathan", kelas: "7C" },
+        { nisn: "0135001021", nama: "Keysha Aurelia", kelas: "7C" },
+        { nisn: "0135001022", nama: "Lutfi Hakim", kelas: "7C" },
+
+        { nisn: "0135001023", nama: "Muhammad Zaki", kelas: "7D" },
+        { nisn: "0135001024", nama: "Mutia Cantika", kelas: "7D" },
+        { nisn: "0135001025", nama: "Nabila Nur Aini", kelas: "7D" },
+        { nisn: "0135001026", nama: "Nurul Fadilah", kelas: "7D" },
+        { nisn: "0135001027", nama: "Putri Ayu Lestari", kelas: "7D" },
+        { nisn: "0135001028", nama: "Rendi Ardiansyah", kelas: "7D" },
+        { nisn: "0135001029", nama: "Rian Hidayat", kelas: "7D" },
+
+        { nisn: "0135001030", nama: "Rizky Firmansyah", kelas: "7E" },
+        { nisn: "0135001031", nama: "Safira Azzahra", kelas: "7E" },
+        { nisn: "0135001032", nama: "Salma Khairunnisa", kelas: "7E" },
+        { nisn: "0135001033", nama: "Siti Rahmawati", kelas: "7E" },
+        { nisn: "0135001034", nama: "Syifa Nuraini", kelas: "7E" },
+        { nisn: "0135001035", nama: "Tasya Kamila", kelas: "7E" },
+        { nisn: "0135001036", nama: "Tiara Amanda", kelas: "7E" },
+        { nisn: "0135001037", nama: "Wildan Pratama", kelas: "7E" },
+        { nisn: "0135001038", nama: "Zahra Nurul Izzah", kelas: "7E" },
+
+        // KELAS 8 (8A - 8E)
+        { nisn: "0125002001", nama: "Aditya Pratama", kelas: "8A" },
+        { nisn: "0125002002", nama: "Alifia Zahra", kelas: "8A" },
+        { nisn: "0125002003", nama: "Andika Saputra", kelas: "8A" },
+        { nisn: "0125002004", nama: "Annisa Rahma", kelas: "8A" },
+        { nisn: "0125002005", nama: "Arya Wiguna", kelas: "8A" },
+        { nisn: "0125002006", nama: "Bintang Pamungkas", kelas: "8A" },
+        { nisn: "0125002007", nama: "Cantika Putri", kelas: "8A" },
+        { nisn: "0125002008", nama: "Danish Firmansyah", kelas: "8A" },
+
+        { nisn: "0125002009", nama: "Dea Ananda", kelas: "8B" },
+        { nisn: "0125002010", nama: "Dion Prasetyo", kelas: "8B" },
+        { nisn: "0125002011", nama: "Elsa Safitri", kelas: "8B" },
+        { nisn: "0125002012", nama: "Fahri Hamzah", kelas: "8B" },
+        { nisn: "0125002013", nama: "Farida Nur", kelas: "8B" },
+        { nisn: "0125002014", nama: "Gading Marten", kelas: "8B" },
+        { nisn: "0125002015", nama: "Gita Gutawa", kelas: "8B" },
+
+        { nisn: "0125002016", nama: "Hendra Wijaya", kelas: "8C" },
+        { nisn: "0125002017", nama: "Irfan Hakim", kelas: "8C" },
+        { nisn: "0125002018", nama: "Jessica Mila", kelas: "8C" },
+        { nisn: "0125002019", nama: "Kenzie Alvaro", kelas: "8C" },
+        { nisn: "0125002020", nama: "Lestari Dewi", kelas: "8C" },
+        { nisn: "0125002021", nama: "Mahendra Putra", kelas: "8C" },
+        { nisn: "0125002022", nama: "Nadia Vega", kelas: "8C" },
+
+        { nisn: "0125002023", nama: "Oki Setiana", kelas: "8D" },
+        { nisn: "0125002024", nama: "Panji Gumilang", kelas: "8D" },
+        { nisn: "0125002025", nama: "Qori Sandioriva", kelas: "8D" },
+        { nisn: "0125002026", nama: "Raffi Ahmad", kelas: "8D" },
+        { nisn: "0125002027", nama: "Rina Nose", kelas: "8D" },
+        { nisn: "0125002028", nama: "Sandiaga Uno", kelas: "8D" },
+        { nisn: "0125002029", nama: "Taufik Hidayat", kelas: "8D" },
+
+        { nisn: "0125002030", nama: "Umar Bakri", kelas: "8E" },
+        { nisn: "0125002031", nama: "Vina Panduwinata", kelas: "8E" },
+        { nisn: "0125002032", nama: "Wahyu Setiawan", kelas: "8E" },
+        { nisn: "0125002033", nama: "Xaverius Danu", kelas: "8E" },
+        { nisn: "0125002034", nama: "Yusuf Mansur", kelas: "8E" },
+        { nisn: "0125002035", nama: "Zaskia Gotik", kelas: "8E" },
+        { nisn: "0125002036", nama: "Zikri Daulay", kelas: "8E" },
+        { nisn: "0125002037", nama: "Naufal Samudra", kelas: "8E" },
+        { nisn: "0125002038", nama: "Rayhan Fadillah", kelas: "8E" },
+
+        // KELAS 9 (9A - 9E)
+        { nisn: "0115003001", nama: "Abimanyu Putra", kelas: "9A" },
+        { nisn: "0115003002", nama: "Bella Shofie", kelas: "9A" },
+        { nisn: "0115003003", nama: "Chandra Liow", kelas: "9A" },
+        { nisn: "0115003004", nama: "Dinda Kirana", kelas: "9A" },
+        { nisn: "0115003005", nama: "Eza Gionino", kelas: "9A" },
+        { nisn: "0115003006", nama: "Febby Rastanty", kelas: "9A" },
+        { nisn: "0115003007", nama: "Gading Ramadhan", kelas: "9A" },
+        { nisn: "0115003008", nama: "Hito Caesar", kelas: "9A" },
+
+        { nisn: "0115003009", nama: "Indah Permatasari", kelas: "9B" },
+        { nisn: "0115003010", nama: "Jefri Nichol", kelas: "9B" },
+        { nisn: "0115003011", nama: "Keshi Amanda", kelas: "9B" },
+        { nisn: "0115003012", nama: "Lucky Perdana", kelas: "9B" },
+        { nisn: "0115003013", nama: "Marsha Aruan", kelas: "9B" },
+        { nisn: "0115003014", nama: "Natasha Wilona", kelas: "9B" },
+        { nisn: "0115003015", nama: "Omar Daniel", kelas: "9B" },
+
+        { nisn: "0115003016", nama: "Prilly Latuconsina", kelas: "9C" },
+        { nisn: "0115003017", nama: "Randy Martin", kelas: "9C" },
+        { nisn: "0115003018", nama: "Syifa Hadju", kelas: "9C" },
+        { nisn: "0115003019", nama: "Teuku Rassya", kelas: "9C" },
+        { nisn: "0115003020", nama: "Ummi Quary", kelas: "9C" },
+        { nisn: "0115003021", nama: "Verrell Bramasta", kelas: "9C" },
+        { nisn: "0115003022", nama: "Wulan Guritno", kelas: "9C" },
+
+        { nisn: "0115003023", nama: "Yuki Kato", kelas: "9D" },
+        { nisn: "0115003024", nama: "Zoe Abbas Jackson", kelas: "9D" },
+        { nisn: "0115003025", nama: "Arbani Yasiz", kelas: "9D" },
+        { nisn: "0115003026", nama: "Beby Tsabina", kelas: "9D" },
+        { nisn: "0115003027", nama: "Ciccio Manassero", kelas: "9D" },
+        { nisn: "0115003028", nama: "Dinda Hauw", kelas: "9D" },
+        { nisn: "0115003029", nama: "Endy Arfian", kelas: "9D" },
+
+        { nisn: "0115003030", nama: "Felicya Angelista", kelas: "9E" },
+        { nisn: "0115003031", nama: "Giorgino Abraham", kelas: "9E" },
+        { nisn: "0115003032", nama: "Hana Saraswati", kelas: "9E" },
+        { nisn: "0115003033", nama: "Immanuel Caesar", kelas: "9E" },
+        { nisn: "0115003034", nama: "Junior Roberts", kelas: "9E" },
+        { nisn: "0115003035", nama: "Kesha Ratuliu", kelas: "9E" },
+        { nisn: "0115003036", nama: "Laura Moane", kelas: "9E" },
+        { nisn: "0115003037", nama: "Maxime Bouttier", kelas: "9E" },
+        { nisn: "0115003038", nama: "Naufal Azhar", kelas: "9E" }
       ];
 
-      const classes7 = ["7A", "7B", "7C", "7D", "7E"];
-      const classes8 = ["8A", "8B", "8C", "8D", "8E"];
-      const classes9 = ["9A", "9B", "9C", "9D", "9E"];
-
-      const rawList = [];
-      let nisnCounter = 3105001001;
-
-      // Buat sample 108 siswa (36 siswa x 3 kelas 7, 8, 9 dari A-E) hanya berisi 3 kolom
-      for (let i = 0; i < 36; i++) {
-        rawList.push({
-          nisn: (nisnCounter++).toString(),
-          nama: indonesianNames[i % indonesianNames.length] + " (Kls 7)",
-          kelas: classes7[i % classes7.length]
-        });
-        rawList.push({
-          nisn: (nisnCounter++).toString(),
-          nama: indonesianNames[(i + 7) % indonesianNames.length] + " (Kls 8)",
-          kelas: classes8[i % classes8.length]
-        });
-        rawList.push({
-          nisn: (nisnCounter++).toString(),
-          nama: indonesianNames[(i + 14) % indonesianNames.length] + " (Kls 9)",
-          kelas: classes9[i % classes9.length]
-        });
-      }
-
-      // Jalankan fungsi auto generate sentral
-      autoDistributeAndGenerate(rawList);
+      // Jalankan fungsi auto generate sentral agar otomatis bersilang di ruangan ujian
+      autoDistributeAndGenerate(defaultStudentList);
     }
 
     /* Render Kartu Ujian (Spesifikasi Presisi KTP ID-1: 85.6mm x 54mm - Tanpa Foto & Font Diperbesar) */
@@ -1456,9 +1570,9 @@
         function getDeskSeatPrint(std, posLabel) {
           if (!std) {
             return `
-              <div style="flex:1; border: 1px dashed #94a3b8; padding: 3px; border-radius: 4px; text-align: center; min-height: 48px;">
+              <div style="flex:1; border: 1px dashed #94a3b8; padding: 2px 4px; border-radius: 4px; text-align: center; min-height: 40px; display: flex; flex-direction: column; justify-content: center;">
                 <div style="font-size: 8px; font-weight: bold; color: #64748b;">${posLabel}</div>
-                <div style="font-size: 8px; color: #94a3b8; font-style: italic;">Kosong</div>
+                <div style="font-size: 7.5px; color: #94a3b8; font-style: italic;">Kosong</div>
               </div>
             `;
           }
@@ -1474,15 +1588,15 @@
           }
 
           return `
-            <div style="flex: 1; border: 1px solid ${borderBadge}; background: ${bgBadge}; padding: 3px; border-radius: 4px; text-align: left; min-height: 48px;">
-              <div style="display:flex; justify-content: space-between; font-size: 8px; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px;">
-                <span>${posLabel}</span>
-                <span style="background: #1e293b; color: #ffffff; padding: 0 3px; border-radius: 2px;">${std.kelas}</span>
+            <div style="flex: 1; border: 1.2px solid ${borderBadge}; background: ${bgBadge}; padding: 2px 4px; border-radius: 4px; text-align: left; min-height: 42px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="display:flex; justify-content: space-between; align-items: center; font-size: 8px; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.12); padding-bottom: 1px;">
+                <span style="font-size: 7.8px; font-weight: 800;">${posLabel}</span>
+                <span style="background: #1e293b; color: #ffffff; padding: 0.5px 3.5px; border-radius: 3px; font-size: 7.5px; font-weight: 900;">${std.kelas}</span>
               </div>
-              <div style="font-size: 8.5px; font-weight: bold; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <div style="font-size: 8.5px; font-weight: 800; color: #0f172a; margin: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
                 ${std.nama}
               </div>
-              <div style="font-size: 8px; font-family: monospace; color: #334155;">${std.noPeserta}</div>
+              <div style="font-size: 7.5px; font-family: monospace; font-weight: 700; color: #334155; line-height: 1;">${std.noPeserta}</div>
             </div>
           `;
         }
@@ -1490,12 +1604,12 @@
         const deskCode = d < 10 ? `0${d}` : `${d}`;
 
         desksHtml += `
-          <div style="border: 1.5px solid #334155; border-radius: 6px; padding: 4px; background: #f8fafc; break-inside: avoid;">
-            <div style="display: flex; justify-content: space-between; font-size: 8.5px; font-weight: 800; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 3px;">
-              <span>MEJA ${deskCode}</span>
-              <span style="font-weight: normal; color: #64748b;">Kursi ${leftSeatNum}-${rightSeatNum}</span>
+          <div style="border: 1.5px solid #334155; border-radius: 6px; padding: 3px 4px; background: #f8fafc; break-inside: avoid; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; font-size: 8.5px; font-weight: 900; border-bottom: 1px solid #cbd5e1; padding-bottom: 1px; margin-bottom: 2px;">
+              <span style="color: #0f172a;">MEJA ${deskCode}</span>
+              <span style="font-weight: 600; color: #475569; font-size: 7.5px;">Kursi ${leftSeatNum}-${rightSeatNum}</span>
             </div>
-            <div style="display: flex; gap: 4px;">
+            <div style="display: flex; gap: 3px;">
               ${getDeskSeatPrint(leftStudent, `Kiri (${leftSeatNum})`)}
               ${(rightSeatNum <= roomCapacity) ? getDeskSeatPrint(rightStudent, `Kanan (${rightSeatNum})`) : ''}
             </div>
@@ -1504,359 +1618,68 @@
       }
 
       printSheet.innerHTML = `
-        <div style="width: 100%; font-family: 'Inter', Arial, sans-serif; color: #000000; padding: 4mm 0;">
+        <div style="width: 100%; max-width: 275mm; margin: 0 auto; font-family: 'Inter', Arial, sans-serif; color: #000000; box-sizing: border-box;">
           <!-- KOP RESMI CETAK DENAH -->
-          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000000; padding-bottom: 6px; margin-bottom: 8px;">
-            <img src="${logoKemenagSvg}" style="width: 44px; height: 44px; object-fit: contain;">
-            <div style="text-align: center; flex: 1;">
-              <h2 style="font-size: 13px; font-weight: 800; margin: 0; text-transform: uppercase;">DENAH TEMPAT DUDUK PESERTA UJIAN</h2>
-              <h3 style="font-size: 11px; font-weight: 700; margin: 1px 0; text-transform: uppercase;">${examTitle}</h3>
-              <p style="font-size: 10px; font-weight: 600; margin: 0;">${schoolName} • TAHUN PELAJARAN ${academicYear}</p>
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #000000; padding-bottom: 4px; margin-bottom: 6px;">
+            <img src="${logoKemenagSvg}" style="width: 48px; height: 48px; object-fit: contain;">
+            <div style="text-align: center; flex: 1; padding: 0 10px;">
+              <h2 style="font-size: 13.5px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">DENAH TEMPAT DUDUK PESERTA UJIAN</h2>
+              <h3 style="font-size: 11px; font-weight: 800; margin: 1px 0; text-transform: uppercase; color: #0f172a;">${examTitle}</h3>
+              <p style="font-size: 10px; font-weight: 700; margin: 0; color: #334155;">${schoolName} • TAHUN PELAJARAN ${academicYear}</p>
             </div>
-            <img src="${logoMtsnSvg}" style="width: 44px; height: 44px; object-fit: contain;">
+            <img src="${logoMtsnSvg}" style="width: 48px; height: 48px; object-fit: contain;">
           </div>
 
-          <!-- KETERANGAN RUANGAN & KAPASITAS -->
-          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin-bottom: 6px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
-            <span>RUANG: ${selectedRoom.toUpperCase()}</span>
+          <!-- KETERANGAN RUANGAN & POLA BERSILANG -->
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; font-weight: 800; margin-bottom: 5px; background: #e2e8f0; padding: 3px 10px; border-radius: 4px; border: 1px solid #cbd5e1;">
+            <span>RUANG: <span style="color: #065f46; font-size: 10.5px;">${selectedRoom.toUpperCase()}</span></span>
             <span>KAPASITAS: ${roomStudents.length} SISWA (${totalDesks} MEJA GANDA)</span>
-            <span>POLA: 1 MEJA 2 SISWA BERSILANG</span>
+            <span>POLA: 1 MEJA 2 SISWA BERSILANG (KELAS 7, 8 & 9)</span>
           </div>
 
-          <!-- PAPAN TULIS DEPAN -->
-          <div style="width: 100%; background: #334155; color: #ffffff; text-align: center; font-size: 9px; font-weight: bold; padding: 3px 0; border-radius: 4px; margin-bottom: 8px;">
+          <!-- PAPAN TULIS & MEJA PENGAWAS DI DEPAN -->
+          <div style="width: 100%; background: #1e293b; color: #ffffff; text-align: center; font-size: 9px; font-weight: 900; letter-spacing: 1px; padding: 3px 0; border-radius: 4px; margin-bottom: 6px;">
             [ PAPAN TULIS & MEJA PENGAWAS RUANG ]
           </div>
 
-          <!-- GRID MEJA PRINT -->
-          <div style="display: grid; grid-template-columns: repeat(${desksPerRow}, 1fr); gap: 6px; margin-bottom: 10px;">
+          <!-- GRID MEJA PRINT LANDSCAPE (5 atau 6 MEJA PER BARIS) -->
+          <div style="display: grid; grid-template-columns: repeat(${desksPerRow}, 1fr); gap: 5px; margin-bottom: 6px;">
             ${desksHtml}
           </div>
 
-          <!-- KETERANGAN PINTU & TANDA TANGAN PENGAWAS -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; border-top: 1px solid #cbd5e1; pt-2;">
-            <div style="font-size: 9px; color: #475569;">
-              <p style="font-weight: bold; margin-bottom: 2px;">Keterangan Warna:</p>
-              <div style="display: flex; gap: 8px;">
-                <span>🔵 Kelas 7</span>
-                <span>🟢 Kelas 8</span>
-                <span>🟡 Kelas 9</span>
+          <!-- KETERANGAN PINTU, WARNA & TANDA TANGAN (COMPACT FIT TO 1 PAGE LANDSCAPE) -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; border-top: 1.5px solid #cbd5e1; padding-top: 4px;">
+            <div style="font-size: 8.5px; color: #334155; line-height: 1.35;">
+              <div style="font-weight: 800; margin-bottom: 2px;">Keterangan Warna Tingkat Kelas:</div>
+              <div style="display: flex; gap: 10px; font-weight: 700;">
+                <span style="color: #0369a1;">🟦 Siswa Kelas 7</span>
+                <span style="color: #15803d;">🟩 Siswa Kelas 8</span>
+                <span style="color: #b45309;">🟨 Siswa Kelas 9</span>
               </div>
-              <p style="margin-top: 4px;">* Ditempel di dinding / depan pintu ruang ujian.</p>
+              <p style="margin-top: 2px; font-style: italic; color: #64748b;">
+                * 1 Meja Panjang = 2 Kursi (Kiri & Kanan). Lembar ini ditempel di pintu masuk ruang ujian.
+              </p>
             </div>
 
             <!-- Tanda Tangan Kepala Madrasah -->
-            <div style="text-align: right; width: 60mm;">
-              <p style="font-size: 8.5px; margin: 0;">${formattedDate}</p>
-              <p style="font-size: 8.5px; font-weight: bold; margin: 1px 0;">${signRole},</p>
-              <div style="height: 30px; margin: -4px 0; display: flex; justify-content: flex-end; align-items: center;">
-                <img src="${activeSignature}" style="height: 38px; max-width: 55mm; object-fit: contain;">
+            <div style="text-align: right; width: 62mm;">
+              <p style="font-size: 8.5px; margin: 0; color: #1e293b;">${formattedDate}</p>
+              <p style="font-size: 8.5px; font-weight: 800; margin: 1px 0;">${signRole},</p>
+              <div style="height: 28px; margin: -3px 0; display: flex; justify-content: flex-end; align-items: center;">
+                <img src="${activeSignature}" style="height: 36px; max-width: 58mm; object-fit: contain;">
               </div>
-              <p style="font-size: 9px; font-weight: bold; text-decoration: underline; margin: 0;">${signName}</p>
-              <p style="font-size: 8px; margin: 0; font-family: monospace;">NIP. ${signNip}</p>
+              <p style="font-size: 9px; font-weight: 900; text-decoration: underline; margin: 0; color: #000000;">${signName}</p>
+              <p style="font-size: 8px; margin: 0; font-family: monospace; font-weight: bold; color: #334155;">NIP. ${signNip}</p>
             </div>
           </div>
         </div>
       `;
     }
 
-    /* Render Tabel Database Siswa */
-    function renderTable() {
-      const tbody = document.getElementById("student-table-body");
-      if (students.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-500 text-xs">Belum ada data siswa.</td></tr>`;
-        return;
-      }
-
-      let html = "";
-      students.forEach((s, idx) => {
-        html += `
-          <tr class="hover:bg-slate-700/40 transition">
-            <td class="p-2.5 font-medium text-slate-400">${idx + 1}</td>
-            <td class="p-2.5 font-bold text-white">${s.noPeserta}</td>
-            <td class="p-2.5 font-semibold text-slate-200">${s.nama}</td>
-            <td class="p-2.5 font-mono text-cyan-400">${s.nisn}</td>
-            <td class="p-2.5 font-mono font-bold text-emerald-400">${s.password}</td>
-            <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-200">${s.kelas}</span></td>
-            <td class="p-2.5">${s.ruang}</td>
-            <td class="p-2.5 font-semibold">${s.meja}</td>
-            <td class="p-2.5 text-slate-400">${s.sesi}</td>
-            <td class="p-2.5 text-center">
-              <button onclick="deleteStudent('${s.id}')" class="text-rose-400 hover:text-rose-300 p-1">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
-
-    /* Handler Upload Gambar Tanda Tangan & Cap PNG */
-    function handleSignatureUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        customSignaturePng = e.target.result;
-        document.getElementById("preview-ttd-thumb").src = customSignaturePng;
-        renderCards();
-        showToast("Tanda tangan PNG berhasil diperbarui!");
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function resetSignatureToDefault() {
-      customSignaturePng = null;
-      document.getElementById("preview-ttd-thumb").src = defaultSampleSignatureSvg;
-      renderCards();
-      showToast("Tanda tangan di-reset ke template standar.");
-    }
-
-    /* Handler Import File Excel / CSV */
-    function handleExcelImport(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(firstSheet);
-
-          if (!rows || rows.length === 0) {
-            showToast("Sheet Excel kosong!");
-            return;
-          }
-
-          const importedStudents = rows.map((r, i) => {
-            const rawNama = r["Nama Siswa"] || r["Nama"] || r["nama"] || `Siswa Baru ${i+1}`;
-            const rawNisn = (r["NISN"] || r["nisn"] || r["Username"] || `31050010${i+1}`).toString();
-            const rawKelas = (r["Kelas"] || r["kelas"] || "7A").toString().toUpperCase();
-            const rawRuang = r["Ruang"] || r["ruang"] || "Ruang 01";
-            const seatNum = parseInt(r["No Meja"] || r["Meja"] || (i % 36) + 1, 10);
-            
-            return {
-              id: 'imp_' + Math.random().toString(36).substr(2, 9),
-              noPeserta: r["No Peserta"] || `SAT-2627-01-${seatNum < 10 ? '0' + seatNum : seatNum}`,
-              nama: rawNama,
-              nisn: rawNisn,
-              kelas: rawKelas,
-              tingkat: parseInt(rawKelas.charAt(0)) || 7,
-              ruang: rawRuang,
-              meja: `Meja-${seatNum < 10 ? '0' + seatNum : seatNum}`,
-              seatNumber: seatNum,
-              sesi: r["Sesi"] || "Sesi : 1",
-              password: r["Password"] || generateSecurePassword()
-            };
-          });
-
-          students = importedStudents;
-          renderCards();
-          renderTable();
-          renderSeatingChart();
-          showToast(`Berhasil mengimpor ${students.length} siswa dari file Excel!`);
-        } catch (err) {
-          console.error(err);
-          showToast("Gagal membaca file Excel. Pastikan format valid!");
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    /* Export Current Database to CSV */
-    function exportCurrentDataToCSV() {
-      if (students.length === 0) {
-        showToast("Tidak ada data untuk diexport!");
-        return;
-      }
-      const header = ["No Peserta", "Nama Siswa", "NISN / Username", "Password", "Kelas", "Ruang Ujian", "Nomor Meja", "Sesi"];
-      const rows = students.map(s => [
-        `"${s.noPeserta}"`,
-        `"${s.nama}"`,
-        `"${s.nisn}"`,
-        `"${s.password}"`,
-        `"${s.kelas}"`,
-        `"${s.ruang}"`,
-        `"${s.meja}"`,
-        `"${s.sesi}"`
-      ]);
-
-      let csvContent = "data:text/csv;charset=utf-8," + header.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `Data_Peserta_SAS_MTsN_Landak_${Date.now()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast("Data CSV berhasil diunduh!");
-    }
-
-    /* Modal Form Logic */
-    function openAddStudentModal() {
-      document.getElementById("modal-input-name").value = "";
-      document.getElementById("modal-input-nisn").value = "3105" + Math.floor(100000 + Math.random() * 900000);
-      generateModalPassword();
-      document.getElementById("modal-add-student").classList.remove("hidden");
-      document.getElementById("modal-add-student").classList.add("flex");
-    }
-
-    function closeAddStudentModal() {
-      document.getElementById("modal-add-student").classList.add("hidden");
-      document.getElementById("modal-add-student").classList.remove("flex");
-    }
-
-    function generateModalPassword() {
-      document.getElementById("modal-input-password").value = generateSecurePassword();
-    }
-
-    function saveModalStudent() {
-      const nama = document.getElementById("modal-input-name").value.trim();
-      const nisn = document.getElementById("modal-input-nisn").value.trim();
-      const kelas = document.getElementById("modal-input-class").value;
-      const ruang = document.getElementById("modal-input-room").value;
-      const seat = parseInt(document.getElementById("modal-input-seat").value, 10) || 1;
-      const sesi = document.getElementById("modal-input-sesi").value;
-      const pass = document.getElementById("modal-input-password").value;
-
-      if (!nama || !nisn) {
-        showToast("Nama dan NISN tidak boleh kosong!");
-        return;
-      }
-
-      const seatFormatted = `Meja-${seat < 10 ? '0' + seat : seat}`;
-      const roomNum = ruang.replace(/[^0-9]/g, '') || "01";
-      const noPeserta = `SAT-2627-${roomNum}-${seat < 10 ? '0' + seat : seat}`;
-
-      students.push({
-        id: 'std_' + Math.random().toString(36).substr(2, 9),
-        noPeserta: noPeserta,
-        nama: nama,
-        nisn: nisn,
-        kelas: kelas,
-        tingkat: parseInt(kelas.charAt(0)) || 7,
-        ruang: ruang,
-        meja: seatFormatted,
-        seatNumber: seat,
-        sesi: sesi,
-        password: pass
-      });
-
-      closeAddStudentModal();
-      renderCards();
-      renderTable();
-      renderSeatingChart();
-      showToast("Siswa baru berhasil ditambahkan!");
-    }
-
-    function deleteStudent(id) {
-      students = students.filter(s => s.id !== id);
-      renderCards();
-      renderTable();
-      renderSeatingChart();
-      showToast("Data siswa dihapus.");
-    }
-
-    /* Tab Switcher */
-    function switchMainTab(tabName) {
-      document.getElementById("tab-preview-content").classList.add("hidden");
-      document.getElementById("tab-denah-content").classList.add("hidden");
-      document.getElementById("tab-data-content").classList.add("hidden");
-
-      document.getElementById("btn-tab-preview").className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2";
-      document.getElementById("btn-tab-denah").className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2";
-      document.getElementById("btn-tab-data").className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2";
-
-      if (tabName === 'preview') {
-        document.getElementById("tab-preview-content").classList.remove("hidden");
-        document.getElementById("btn-tab-preview").className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white flex items-center gap-2";
-      } else if (tabName === 'denah') {
-        document.getElementById("tab-denah-content").classList.remove("hidden");
-        document.getElementById("btn-tab-denah").className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white flex items-center gap-2";
-        renderSeatingChart();
-      } else if (tabName === 'data') {
-        document.getElementById("tab-data-content").classList.remove("hidden");
-        document.getElementById("btn-tab-data").className = "px-3.5 py-1.5 rounded-lg text-sm font-semibold transition bg-emerald-600 text-white flex items-center gap-2";
-        renderTable();
-      }
-    }
-
-    /* Modal Hapus Data Siswa Logic */
-    function openDeleteModal() {
-      document.getElementById("modal-delete-choice").classList.remove("hidden");
-      document.getElementById("modal-delete-choice").classList.add("flex");
-    }
-
-    function closeDeleteModal() {
-      document.getElementById("modal-delete-choice").classList.add("hidden");
-      document.getElementById("modal-delete-choice").classList.remove("flex");
-    }
-
-    /* Eksekusi Hapus Seluruh Siswa */
-    function confirmDeleteAllStudents() {
-      if (students.length === 0) {
-        showToast("Database sudah kosong!");
-        closeDeleteModal();
-        return;
-      }
-      const count = students.length;
-      students = [];
-      updateRoomDropdowns();
-      renderCards();
-      renderTable();
-      renderSeatingChart();
-      closeDeleteModal();
-      showToast(`Semua data siswa (${count} orang) berhasil dihapus.`);
-    }
-
-    /* Eksekusi Hapus Berdasarkan Kelas / Tingkat Tertentu */
-    function confirmDeleteByClass() {
-      if (students.length === 0) {
-        showToast("Database sudah dalam keadaan kosong!");
-        closeDeleteModal();
-        return;
-      }
-
-      const target = document.getElementById("select-delete-target").value;
-      const initialCount = students.length;
-
-      if (target.startsWith("TINGKAT_")) {
-        const gradeLevel = parseInt(target.replace("TINGKAT_", ""), 10);
-        students = students.filter(s => {
-          const kls = String(s.kelas || "").trim().toUpperCase();
-          const matchGrade = kls.startsWith(String(gradeLevel)) || s.tingkat === gradeLevel;
-          return !matchGrade;
-        });
-      } else {
-        // Rombel spesifik, misal: 7A, 8B
-        students = students.filter(s => String(s.kelas || "").trim().toUpperCase() !== target.toUpperCase());
-      }
-
-      const deletedCount = initialCount - students.length;
-
-      if (deletedCount === 0) {
-        showToast(`Tidak ditemukan siswa untuk kategori kelas: ${target}`);
-      } else {
-        // Susun ulang ruang dan nomor meja agar tetap terisi padat bersilang tanpa celah kosong
-        const rawListRemaining = students.map(s => ({
-          nisn: s.nisn,
-          nama: s.nama,
-          kelas: s.kelas
-        }));
-        
-        autoDistributeAndGenerate(rawListRemaining);
-        showToast(`Berhasil menghapus ${deletedCount} siswa. Meja & ruang telah ditata ulang!`);
-      }
-
-      closeDeleteModal();
-    }
-
     /* Print Triggers */
     function triggerPrintAll() {
+      // Pastikan page orientation kembali ke portrait untuk cetak kartu
+      injectPageStyle('size: A4 portrait; margin: 8mm 6mm 6mm 6mm;');
       switchMainTab('preview');
       document.body.classList.remove('printing-denah');
       document.body.classList.add('printing-cards');
@@ -1867,6 +1690,8 @@
     }
 
     function printSeatingChartOnly() {
+      // Ubah @page rule secara dinamis ke A4 landscape
+      injectPageStyle('size: A4 landscape; margin: 6mm 8mm 6mm 8mm;');
       renderPrintableDenahSheet();
       document.body.classList.remove('printing-cards');
       document.body.classList.add('printing-denah');
@@ -1874,6 +1699,17 @@
         window.print();
         document.body.classList.remove('printing-denah');
       }, 250);
+    }
+
+    /* Helper: Inject Aturan @page CSS Dinamis Sesuai Target Cetak */
+    function injectPageStyle(rule) {
+      let printStyleTag = document.getElementById("dynamic-print-style");
+      if (!printStyleTag) {
+        printStyleTag = document.createElement("style");
+        printStyleTag.id = "dynamic-print-style";
+        document.head.appendChild(printStyleTag);
+      }
+      printStyleTag.innerHTML = `@media print { @page { ${rule} } }`;
     }
 
     /* Notification Toast */
